@@ -95,7 +95,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
 
 <div class="wrap">
   <h1>השוואת תשואות חיסכון פנסיוני</h1>
-  <p class="lede">בחרו מוצר ותקופה, סמנו מסלולים בטבלה והשוו ביניהם בגרף. הנתונים מפנסיה־נט וגמל־נט של רשות שוק ההון.</p>
+  <p class="lede">בחרו מוצר ותקופה, סמנו מסלולים בטבלה והשוו ביניהם בגרף. הנתונים מפנסיה־נט, גמל־נט וביטוח־נט של רשות שוק ההון.</p>
 
   <section class="panel" aria-label="הגדרות השוואה">
     <div class="controls">
@@ -105,6 +105,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
           <button type="button" data-p="pension">קרנות פנסיה</button>
           <button type="button" data-p="gemel">קופות גמל</button>
           <button type="button" data-p="hishtalmut">קרנות השתלמות</button>
+          <button type="button" data-p="policy">פוליסות חיסכון</button>
         </div>
       </div>
       <div class="ctl"><label for="from">מחודש</label><select id="from"></select></div>
@@ -148,14 +149,14 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
     <p class="meta" id="meta"></p>
   </section>
 
-  <p class="foot">תשואות עבר אינן מבטיחות תשואות בעתיד. התשואות ברוטו, לפני דמי ניהול, כפי שדווחו לרשות שוק ההון. תשואה ממוצעת שנתית מוצגת רק לתקופה של 12 חודשים לפחות. המידע אינו ייעוץ השקעות.</p>
+  <p class="foot">תשואות עבר אינן מבטיחות תשואות בעתיד. התשואות ברוטו, לפני דמי ניהול, כפי שדווחו לרשות שוק ההון. תשואה ממוצעת שנתית מוצגת רק לתקופה של 12 חודשים לפחות. בפוליסות החיסכון מוצגים מסלולי ההשקעה מביטוח־נט, שחלקם משותפים גם לביטוחי מנהלים. המידע אינו ייעוץ השקעות.</p>
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
 const COLORS=['#2F5DA8','#C4452D','#0F7C6E','#C58A12','#7A4DB0','#1F8FBF','#B23A77','#5E7C1E'];
 const MAX_SEL=8;
-const PRODUCT_NAMES={pension:'קרנות פנסיה',gemel:'קופות גמל',hishtalmut:'קרנות השתלמות'};
+const PRODUCT_NAMES={pension:'קרנות פנסיה',gemel:'קופות גמל',hishtalmut:'קרנות השתלמות',policy:'פוליסות חיסכון'};
 const state={p:null,from:null,to:null,sel:[],q:'',company:'',spec:'',full:true,sort:{k:'cum',d:-1},show:50};
 const cache={}; let INDEX=null, D=null, POS=null, chartState=null;
 

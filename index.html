@@ -105,6 +105,47 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
 .meta{font-size:.8rem;color:var(--muted);margin-top:10px}
 .foot{font-size:.78rem;color:var(--muted);max-width:80ch}
 .rank{color:var(--muted);font-size:.8rem}
+.ms{position:relative}
+.ms-btn{font:inherit;font-size:.95rem;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);min-width:190px;text-align:right;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ms-btn::after{content:"▾";color:var(--muted)}
+.ms-pop{position:absolute;top:calc(100% + 4px);right:0;z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);width:280px;max-width:85vw}
+.ms-pop[hidden]{display:none}
+.ms-actions{display:flex;gap:6px;padding:8px;border-bottom:1px solid var(--line)}
+.ms-actions button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:transparent;color:var(--ink);padding:4px 10px;border-radius:14px;cursor:pointer}
+.ms-list{max-height:260px;overflow-y:auto;padding:6px}
+.ms-list label{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:6px;font-size:.9rem;cursor:pointer;color:var(--ink);margin:0}
+.ms-list label:hover{background:var(--soft)}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.pdfbtn{font:inherit;font-size:.88rem;font-weight:500;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 14px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.pdfbtn::before{content:"";width:10px;height:10px;border-radius:2px;background:#B4472F}
+.pdfbtn:hover{border-color:var(--muted)}
+#report{display:none}
+@media print{
+  @page{size:A4;margin:11mm}
+  body{background:#fff !important;color:#23262C !important}
+  body > *:not(#report){display:none !important}
+  #report{display:block !important;font-size:10pt;color:#23262C}
+  #report .rhead{display:flex;align-items:center;gap:14px}
+  #report .rhead img{height:54px;width:auto}
+  #report h1{font-size:17pt;margin:0}
+  #report .sub{color:#6B6456;font-size:9pt}
+  #report h2{font-size:12pt;margin:14px 0 6px;padding-bottom:3px;border-bottom:1.5px solid #E0A100;break-after:avoid}
+  #report .meta{font-size:9pt;color:#23262C;margin:6px 0}
+  #report .meta b{font-weight:600}
+  #report svg{width:100%;height:auto}
+  #report .chart{break-inside:avoid}
+  #report .lg{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:8.5pt;margin-top:4px}
+  #report .lg span{display:inline-flex;align-items:center;gap:5px}
+  #report .lg span::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--c)}
+  #report table{width:100%;border-collapse:collapse;min-width:0;font-size:8.3pt}
+  #report th,#report td{border-bottom:1px solid #E6DFCF;padding:3px 5px;text-align:left;white-space:nowrap}
+  #report th:first-child,#report td:first-child,#report th:nth-child(2),#report td:nth-child(2){text-align:right;white-space:normal}
+  #report th{background:#FBF2D8;font-weight:700}
+  #report tr{break-inside:avoid}
+  #report .pos{color:#1E8A5A} #report .neg{color:#B4472F} #report .na{color:#999}
+  #report td:first-child{width:26%} #report td:nth-child(2){width:14%}
+  #report .note{font-size:8pt;color:#6B6456;margin-top:12px}
+}
 </style>
 </head>
 <body>
@@ -152,7 +193,10 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
   </section>
 
   <section class="panel" aria-label="גרף תשואה מצטברת">
-    <h2 id="chartTitle">תשואה מצטברת</h2>
+    <div class="chart-head">
+      <h2 id="chartTitle">תשואה מצטברת</h2>
+      <button type="button" class="pdfbtn" id="btnPdf">הורדת דוח PDF</button>
+    </div>
     <div class="chips" id="chips"></div>
     <div class="chart-box" id="chartBox">
       <svg id="chart" viewBox="0 0 900 340" width="100%" style="direction:ltr" role="img" aria-label="גרף תשואה מצטברת"></svg>
@@ -163,7 +207,15 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
   <section class="panel" aria-label="טבלת מסלולים">
     <div class="controls" style="margin-bottom:14px">
       <div class="ctl"><label for="q">חיפוש</label><input type="search" id="q" placeholder="שם מסלול, חברה או מספר"></div>
-      <div class="ctl"><label for="company">חברה מנהלת</label><select id="company"></select></div>
+      <div class="ctl"><label>חברות מנהלות</label>
+        <div class="ms" id="companyMs">
+          <button type="button" class="ms-btn" id="msBtn" aria-haspopup="true" aria-expanded="false"><span id="msLabel">כל החברות</span></button>
+          <div class="ms-pop" id="msPop" hidden>
+            <div class="ms-actions"><button type="button" data-a="all">בחר הכל</button><button type="button" data-a="none">נקה בחירה</button></div>
+            <div class="ms-list" id="msList"></div>
+          </div>
+        </div>
+      </div>
       <div class="ctl"><label for="spec">התמחות</label><select id="spec"></select></div>
       <label class="check"><input type="checkbox" id="fullOnly" checked> רק מסלולים עם נתונים לכל התקופה</label>
     </div>
@@ -180,6 +232,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
   <p class="foot">תשואות עבר אינן מבטיחות תשואות בעתיד. התשואות ברוטו, לפני דמי ניהול, כפי שדווחו לרשות שוק ההון. תשואה ממוצעת שנתית מוצגת רק לתקופה של 12 חודשים לפחות. בפוליסות החיסכון מוצגים מסלולי ההשקעה מביטוח־נט, שחלקם משותפים גם לביטוחי מנהלים. המידע אינו ייעוץ השקעות.</p>
 </div>
 
+<div id="report" dir="rtl"></div>
 <footer class="site-foot">© כל הזכויות שמורות לשי הדרים סוכנות לביטוח פנסיוני (2024) בע"מ</footer>
 
 <script>
@@ -187,7 +240,7 @@ const $=id=>document.getElementById(id);
 const COLORS=['#E09B00','#4F86B8','#D0573B','#2E9C86','#8E62C4','#C2185B','#6B8E23','#8C6D1F'];
 const MAX_SEL=8;
 const PRODUCT_NAMES={pension:'קרנות פנסיה',gemel:'קופות גמל',hishtalmut:'קרנות השתלמות',policy:'פוליסות חיסכון'};
-const state={p:null,from:null,to:null,sel:[],q:'',company:'',spec:'',full:true,sort:{k:'cum',d:-1},show:50};
+const state={p:null,from:null,to:null,sel:[],q:'',companies:[],spec:'',full:true,sort:{k:'cum',d:-1},show:50};
 const cache={}; let INDEX=null, D=null, POS=null, chartState=null;
 
 const fmtN=(v,d=2)=>v==null||!isFinite(v)?'—':v.toLocaleString('he-IL',{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -198,12 +251,13 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 // ---------- URL state ----------
 function saveState(){
   try{ localStorage.setItem('ret-state',JSON.stringify({p:state.p,from:state.from,to:state.to,sel:state.sel,q:state.q,
-    company:state.company,spec:state.spec,full:state.full,sort:state.sort})); }catch(e){}
+    companies:state.companies,spec:state.spec,full:state.full,sort:state.sort})); }catch(e){}
 }
 function readSaved(){
   let st=null; try{ st=JSON.parse(localStorage.getItem('ret-state')||'null'); }catch(e){}
   if(!st) return;
-  ['p','from','to','q','company','spec','full','sort'].forEach(k=>{ if(st[k]!=null) state[k]=st[k]; });
+  ['p','from','to','q','spec','full','sort'].forEach(k=>{ if(st[k]!=null) state[k]=st[k]; });
+  if(Array.isArray(st.companies)) state.companies=st.companies; else if(st.company) state.companies=[st.company];
   if(Array.isArray(st.sel)) state.sel=st.sel.slice(0,MAX_SEL);
   $('q').value=state.q; $('fullOnly').checked=state.full;
 }
@@ -265,11 +319,12 @@ function fillPeriods(){
   $('from').value=state.from; $('to').value=state.to;
 }
 function fillFilters(){
-  if(state.company&&!D.companies.includes(state.company)) state.company='';
+  state.companies=state.companies.filter(c=>D.companies.includes(c));
   if(state.spec&&!D.specs.includes(state.spec)) state.spec='';
-  $('company').innerHTML='<option value="">כל החברות</option>'+D.companies.map(c=>`<option>${esc(c)}</option>`).join('');
+  $('msList').innerHTML=D.companies.map(c=>`<label><input type="checkbox" value="${esc(c)}" ${state.companies.includes(c)?'checked':''}> ${esc(c)}</label>`).join('');
+  msLabel();
   $('spec').innerHTML='<option value="">כל ההתמחויות</option>'+D.specs.map(c=>`<option>${esc(c)}</option>`).join('');
-  $('company').value=state.company; $('spec').value=state.spec;
+  $('spec').value=state.spec;
   $('spec').parentElement.style.display=D.specs.length?'':'none';
 }
 function colorOf(id){ const i=state.sel.indexOf(id); return i<0?null:COLORS[i%COLORS.length]; }
@@ -279,10 +334,14 @@ const COLS=[
   {k:'cum',label:'תשואה מצטברת'},{k:'ann',label:'ממוצעת שנתית'},{k:'sd',label:'סטיית תקן שנתית'},
   {k:'fee',label:'דמי ניהול מצבירה'},{k:'feeDep',label:'דמי ניהול מהפקדה'},{k:'assets',label:'נכסים (מיליוני ₪)'}
 ];
-function renderTable(){
+function msLabel(){
+  const n=state.companies.length;
+  $('msLabel').textContent=n===0?'כל החברות':n===1?state.companies[0]:`${n} חברות נבחרו`;
+}
+function computeRows(){
   const fi=POS[state.from], ti=POS[state.to], q=state.q.trim().toLowerCase();
   let rows=D.funds.filter(f=>
-    (!state.company||f.company===state.company)&&(!state.spec||f.spec===state.spec)&&
+    (!state.companies.length||state.companies.includes(f.company))&&(!state.spec||f.spec===state.spec)&&
     (!q||(f.name+' '+f.company+' '+f.id).toLowerCase().includes(q))
   ).map(f=>({f,...stats(f.id,fi,ti)}));
   if(state.full) rows=rows.filter(r=>r.full);
@@ -291,6 +350,11 @@ function renderTable(){
   rows.sort((a,b)=>{ const x=val(a),y=val(b);
     if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1;
     return typeof x==='string'?d*x.localeCompare(y,'he'):d*(x-y); });
+  return rows;
+}
+function renderTable(){
+  const fi=POS[state.from], ti=POS[state.to];
+  const rows=computeRows();
   $('thead').innerHTML=COLS.map(c=>{
     if(c.k==='sel'||c.k==='rank') return `<th>${c.label}</th>`;
     const dir=state.sort.k===c.k?(state.sort.d<0?'▼':'▲'):null;
@@ -390,7 +454,7 @@ function renderAll(){ writeHash(); renderChips(); renderChart(); renderTable(); 
 
 async function setProduct(p,keepSel){
   state.p=p; D=await loadProduct(p); POS=D.pos;
-  if(!keepSel){ state.sel=[]; state.company=''; state.spec=''; }
+  if(!keepSel){ state.sel=[]; state.companies=[]; state.spec=''; }
   state.sel=state.sel.filter(id=>D.byId[id]);
   state.show=50;
   document.querySelectorAll('#products button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===p));
@@ -408,7 +472,14 @@ $('quick').addEventListener('click',e=>{ const b=e.target.closest('button[data-q
   else state.from=D.periods[Math.max(0,last-(+b.dataset.q)+1)];
   $('from').value=state.from; $('to').value=state.to; renderAll(); });
 let qt; $('q').addEventListener('input',e=>{ clearTimeout(qt); qt=setTimeout(()=>{ state.q=e.target.value; state.show=50; renderTable(); },150); });
-$('company').addEventListener('change',e=>{ state.company=e.target.value; state.show=50; renderTable(); });
+$('msBtn').addEventListener('click',e=>{ e.stopPropagation(); const open=$('msPop').hidden; $('msPop').hidden=!open; $('msBtn').setAttribute('aria-expanded',open); });
+$('msPop').addEventListener('click',e=>e.stopPropagation());
+document.addEventListener('click',()=>{ if(!$('msPop').hidden){ $('msPop').hidden=true; $('msBtn').setAttribute('aria-expanded','false'); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('msPop').hidden){ $('msPop').hidden=true; $('msBtn').focus(); } });
+$('msList').addEventListener('change',()=>{ state.companies=[...$('msList').querySelectorAll('input:checked')].map(i=>i.value); msLabel(); state.show=50; renderTable(); });
+$('msPop').querySelector('.ms-actions').addEventListener('click',e=>{ const b=e.target.closest('button[data-a]'); if(!b) return;
+  $('msList').querySelectorAll('input').forEach(i=>i.checked=b.dataset.a==='all');
+  state.companies=b.dataset.a==='all'?[...D.companies]:[]; msLabel(); state.show=50; renderTable(); });
 $('spec').addEventListener('change',e=>{ state.spec=e.target.value; state.show=50; renderTable(); });
 $('fullOnly').addEventListener('change',e=>{ state.full=e.target.checked; renderTable(); });
 $('thead').addEventListener('click',e=>{ const b=e.target.closest('button[data-sort]'); if(!b) return;
@@ -441,6 +512,50 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()
   await setProduct(p,true);
 })();
 
+
+// ---------- PDF report ----------
+function reportPct(v){ return v==null||!isFinite(v)?'<span class="na">—</span>':`<span class="${v>=0?'pos':'neg'}">${fmtN(v*100)}%</span>`; }
+function reportRow(r,withColor){
+  const c=colorOf(r.f.id);
+  return `<tr><td>${withColor&&c?`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};margin-inline-end:5px"></span>`:''}${esc(r.f.name)}</td><td>${esc(r.f.company)} · ${esc(r.f.id)}</td>
+    <td>${reportPct(r.cum)}</td><td>${reportPct(r.ann)}</td><td>${r.sd==null?'—':fmtN(r.sd*100)+'%'}</td>
+    <td>${r.f.fee==null?'—':fmtN(r.f.fee)+'%'}</td><td>${r.f.feeDep==null?'—':fmtN(r.f.feeDep)+'%'}</td><td>${r.f.assets==null?'—':fmtN(r.f.assets,0)}</td></tr>`;
+}
+function buildReport(){
+  const fi=POS[state.from], ti=POS[state.to];
+  const head=`<thead><tr><th>מסלול</th><th>חברה · מספר</th><th>תשואה מצטברת</th><th>ממוצעת שנתית</th><th>סטיית תקן שנתית</th><th>ד"נ מצבירה</th><th>ד"נ מהפקדה</th><th>נכסים (מ' ₪)</th></tr></thead>`;
+  const root=document.documentElement, prev=root.getAttribute('data-theme');
+  root.setAttribute('data-theme','light'); renderChart();
+  const chart=state.sel.length?$('chart').outerHTML.replace('id="chart"','').replace(/<g id="hover"[\s\S]*?<\/g>/,''):'';
+  if(prev==null) root.removeAttribute('data-theme'); else root.setAttribute('data-theme',prev); renderChart();
+  const selRows=state.sel.filter(id=>D.byId[id]).map(id=>({f:D.byId[id],...stats(id,fi,ti)}));
+  const rows=computeRows().slice(0,Math.min(state.show,100));
+  const filters=[];
+  if(state.companies.length) filters.push(`<b>חברות:</b> ${state.companies.map(esc).join(', ')}`);
+  if(state.spec) filters.push(`<b>התמחות:</b> ${esc(state.spec)}`);
+  if(state.q.trim()) filters.push(`<b>חיפוש:</b> ${esc(state.q)}`);
+  if(state.full) filters.push('רק מסלולים עם נתונים לכל התקופה');
+  const today=new Date().toLocaleDateString('he-IL');
+  return `<div class="rhead"><img src="logo-mark.png" alt="" onerror="this.remove()"><div><h1>דוח השוואת תשואות · ${PRODUCT_NAMES[state.p]}</h1>
+      <div class="sub">הופק ב־${today} · שי הדרים סוכנות לביטוח פנסיוני · נתונים עד ${plab(D.periods[D.periods.length-1])}</div></div></div>
+    <div class="meta"><b>תקופה:</b> ${plab(state.from)} עד ${plab(state.to)} (${ti-fi+1} חודשים)${filters.length?' · '+filters.join(' · '):''}</div>
+    ${selRows.length?`<h2>תשואה מצטברת · מסלולים נבחרים</h2><div class="chart">${chart}
+      <div class="lg">${selRows.map(r=>`<span style="--c:${colorOf(r.f.id)}">${esc(r.f.name)}</span>`).join('')}</div></div>
+      <h2>השוואת המסלולים הנבחרים</h2><table>${head}<tbody>${selRows.map(r=>reportRow(r,true)).join('')}</tbody></table>`:''}
+    <h2>טבלת מסלולים${rows.length?` (${rows.length} הראשונים לפי ${COLS.find(c=>c.k===state.sort.k)?.label||''})`:''}</h2>
+    <table>${head}<tbody>${rows.map(r=>reportRow(r,false)).join('')||'<tr><td colspan="8">אין מסלולים שמתאימים לסינון.</td></tr>'}</tbody></table>
+    <p class="note">מקור: פנסיה־נט, גמל־נט וביטוח־נט של רשות שוק ההון. התשואות ברוטו, לפני דמי ניהול. תשואות עבר אינן מבטיחות תשואות בעתיד. המידע אינו ייעוץ השקעות.</p>
+    <p class="note" style="text-align:center">© כל הזכויות שמורות לשי הדרים סוכנות לביטוח פנסיוני (2024) בע&quot;מ</p>`;
+}
+$('btnPdf').addEventListener('click',()=>{
+  if(!D) return;
+  $('report').innerHTML=buildReport();
+  const old=document.title; document.title=`דוח השוואת תשואות ${new Date().toLocaleDateString('he-IL').replace(/\./g,'-')}`;
+  const done=()=>{ document.title=old; $('report').innerHTML=''; window.removeEventListener('afterprint',done); };
+  window.addEventListener('afterprint',done);
+  const imgs=[...$('report').querySelectorAll('img')].filter(i=>!i.complete);
+  Promise.all(imgs.map(i=>new Promise(r=>{ i.onload=i.onerror=r; setTimeout(r,2000); }))).then(()=>window.print());
+});
 // ---------- light / dark toggle ----------
 function paintThemeBtn(){ const dark=document.documentElement.getAttribute('data-theme')==='dark';
   const b=document.getElementById('themeBtn'); b.innerHTML=dark?'☀️<span class="tl"> מצב בהיר</span>':'🌙<span class="tl"> מצב כהה</span>'; b.setAttribute('aria-label',dark?'מעבר למצב בהיר':'מעבר למצב כהה'); }

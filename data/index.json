@@ -1,0 +1,20 @@
+{
+ "updated": "2026-09-26",
+ "products": {
+  "pension": {
+   "count": 408,
+   "from": 201110,
+   "to": 202608
+  },
+  "gemel": {
+   "count": 1135,
+   "from": 199901,
+   "to": 202608
+  },
+  "hishtalmut": {
+   "count": 507,
+   "from": 199901,
+   "to": 202608
+  }
+ }
+}

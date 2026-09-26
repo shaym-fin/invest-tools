@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>השוואת תשואות חיסכון פנסיוני</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F4; --panel:#FFFFFF; --ink:#18263A; --muted:#5D6B7C; --line:#DCE2E6;
+  --accent:#2F5DA8; --soft:#EAF0F7; --pos:#0F7C6E; --neg:#B4472F;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161F; --panel:#172130; --ink:#E6ECF2; --muted:#9AA8B8; --line:#2A3748;
+    --accent:#7EA6E8; --soft:#1E2B3D; --pos:#3DBBA8; --neg:#E97B62;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161F; --panel:#172130; --ink:#E6ECF2; --muted:#9AA8B8; --line:#2A3748;
+  --accent:#7EA6E8; --soft:#1E2B3D; --pos:#3DBBA8; --neg:#E97B62;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Hebrew","Arial Hebrew",Arial,sans-serif;font-size:16px;line-height:1.5}
+.topnav{background:var(--panel);border-bottom:1px solid var(--line)}
+.topnav .in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.topnav .brand{font-weight:700}
+.topnav a{color:var(--muted);text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+.topnav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px}
+h1{font-size:clamp(1.6rem,3vw,2.2rem);margin:0 0 4px;letter-spacing:-.01em}
+.lede{margin:0 0 20px;color:var(--muted);max-width:65ch}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+h2{font-size:1.05rem;margin:0 0 12px}
+.controls{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:flex-end}
+.ctl label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:4px}
+select,input[type=search]{font:inherit;font-size:.95rem;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);min-width:140px}
+input[type=search]{min-width:200px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex-wrap:wrap}
+.seg button{font:inherit;font-size:.9rem;border:0;background:transparent;color:var(--muted);padding:8px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--soft);color:var(--ink);font-weight:500}
+.seg button:disabled{opacity:.4;cursor:default}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+.quick button{font:inherit;font-size:.82rem;border:1px solid var(--line);background:transparent;color:var(--muted);padding:6px 10px;border-radius:20px;cursor:pointer}
+.quick button:hover{color:var(--ink);border-color:var(--muted)}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.check{display:flex;align-items:center;gap:6px;font-size:.88rem;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;min-height:10px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:20px;padding:4px 6px 4px 12px;font-size:.85rem;background:var(--bg)}
+.chip::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c)}
+.chip button{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:1rem;line-height:1;padding:2px 6px;border-radius:50%}
+.chip button:hover{background:var(--soft);color:var(--ink)}
+.empty{color:var(--muted);font-size:.92rem;padding:30px 10px;text-align:center}
+.chart-box{position:relative}
+#chart{display:block;touch-action:pan-y;cursor:crosshair}
+.tip{position:absolute;top:8px;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:.8rem;box-shadow:0 4px 14px rgba(0,0,0,.12);min-width:200px;max-width:300px;display:none}
+.tip b{display:block;margin-bottom:4px}
+.tip div{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.tip i{font-style:normal;display:inline-flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+.tip i::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--c)}
+.table-box{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums;min-width:820px}
+th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th:nth-child(-n+3),td:nth-child(-n+3){text-align:right}
+td.name{white-space:normal;min-width:240px}
+td.name small{display:block;color:var(--muted);font-size:.76rem}
+th{font-weight:500;color:var(--muted);font-size:.8rem;vertical-align:bottom}
+th button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+th button[data-dir]::after{content:attr(data-dir);margin-inline-start:4px}
+tr.sel td{background:var(--soft)}
+tbody tr:hover td{background:var(--soft)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c,transparent);border:1px solid var(--line)}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:pointer}
+.pos{color:var(--pos)} .neg{color:var(--neg)} .na{color:var(--muted)}
+.more{margin-top:10px;font:inherit;font-size:.88rem;border:1px solid var(--line);background:transparent;color:var(--ink);padding:7px 14px;border-radius:9px;cursor:pointer}
+.meta{font-size:.8rem;color:var(--muted);margin-top:10px}
+.foot{font-size:.78rem;color:var(--muted);max-width:80ch}
+.rank{color:var(--muted);font-size:.8rem}
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="ניווט ראשי">
+  <div class="in">
+    <span class="brand">תשואות ומינוף</span>
+    <a href="index.html" aria-current="page">השוואת תשואות</a>
+    <a href="leverage.html">סימולטור מינוף</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <h1>השוואת תשואות חיסכון פנסיוני</h1>
+  <p class="lede">בחרו מוצר ותקופה, סמנו מסלולים בטבלה והשוו ביניהם בגרף. הנתונים מפנסיה־נט וגמל־נט של רשות שוק ההון.</p>
+
+  <section class="panel" aria-label="הגדרות השוואה">
+    <div class="controls">
+      <div class="ctl">
+        <label>מוצר</label>
+        <div class="seg" id="products" role="group" aria-label="מוצר">
+          <button type="button" data-p="pension">קרנות פנסיה</button>
+          <button type="button" data-p="gemel">קופות גמל</button>
+          <button type="button" data-p="hishtalmut">קרנות השתלמות</button>
+        </div>
+      </div>
+      <div class="ctl"><label for="from">מחודש</label><select id="from"></select></div>
+      <div class="ctl"><label for="to">עד חודש</label><select id="to"></select></div>
+      <div class="ctl">
+        <label>טווח מהיר</label>
+        <div class="quick" id="quick">
+          <button type="button" data-q="ytd">מתחילת השנה</button>
+          <button type="button" data-q="12">12 חודשים</button>
+          <button type="button" data-q="36">3 שנים</button>
+          <button type="button" data-q="60">5 שנים</button>
+          <button type="button" data-q="all">הכול</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="גרף תשואה מצטברת">
+    <h2 id="chartTitle">תשואה מצטברת</h2>
+    <div class="chips" id="chips"></div>
+    <div class="chart-box" id="chartBox">
+      <svg id="chart" viewBox="0 0 900 340" width="100%" style="direction:ltr" role="img" aria-label="גרף תשואה מצטברת"></svg>
+      <div class="tip" id="tip"></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="טבלת מסלולים">
+    <div class="controls" style="margin-bottom:14px">
+      <div class="ctl"><label for="q">חיפוש</label><input type="search" id="q" placeholder="שם מסלול, חברה או מספר"></div>
+      <div class="ctl"><label for="company">חברה מנהלת</label><select id="company"></select></div>
+      <div class="ctl"><label for="spec">התמחות</label><select id="spec"></select></div>
+      <label class="check"><input type="checkbox" id="fullOnly" checked> רק מסלולים עם נתונים לכל התקופה</label>
+    </div>
+    <div class="table-box">
+      <table>
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div id="moreBox"></div>
+    <p class="meta" id="meta"></p>
+  </section>
+
+  <p class="foot">תשואות עבר אינן מבטיחות תשואות בעתיד. התשואות ברוטו, לפני דמי ניהול, כפי שדווחו לרשות שוק ההון. תשואה ממוצעת שנתית מוצגת רק לתקופה של 12 חודשים לפחות. המידע אינו ייעוץ השקעות.</p>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const COLORS=['#2F5DA8','#C4452D','#0F7C6E','#C58A12','#7A4DB0','#1F8FBF','#B23A77','#5E7C1E'];
+const MAX_SEL=8;
+const PRODUCT_NAMES={pension:'קרנות פנסיה',gemel:'קופות גמל',hishtalmut:'קרנות השתלמות'};
+const state={p:null,from:null,to:null,sel:[],q:'',company:'',spec:'',full:true,sort:{k:'cum',d:-1},show:50};
+const cache={}; let INDEX=null, D=null, POS=null, chartState=null;
+
+const fmtN=(v,d=2)=>v==null||!isFinite(v)?'—':v.toLocaleString('he-IL',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=(v,d=2)=>v==null||!isFinite(v)?'<span class="na">—</span>':`<span class="${v>=0?'pos':'neg'}">${fmtN(v*100,d)}%</span>`;
+const plab=p=>`${String(p%100).padStart(2,'0')}/${Math.floor(p/100)}`;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---------- URL state ----------
+function readHash(){
+  const h=new URLSearchParams(location.hash.slice(1));
+  if(h.get('p')) state.p=h.get('p');
+  if(h.get('f')) state.from=+h.get('f');
+  if(h.get('t')) state.to=+h.get('t');
+  if(h.get('s')) state.sel=h.get('s').split(',').filter(Boolean).slice(0,MAX_SEL);
+}
+function writeHash(){
+  const h=new URLSearchParams({p:state.p,f:state.from,t:state.to});
+  if(state.sel.length) h.set('s',state.sel.join(','));
+  history.replaceState(null,'','#'+h.toString());
+}
+
+// ---------- data ----------
+async function getJSON(url){ const r=await fetch(url,{cache:'no-cache'}); if(!r.ok) throw new Error(r.status); return r.json(); }
+async function loadProduct(p){
+  if(!cache[p]){
+    const d=await getJSON(`data/${p}.json`);
+    d.byId={}; d.funds.forEach(f=>d.byId[f.id]=f);
+    d.pos={}; d.periods.forEach((x,i)=>d.pos[x]=i);
+    d.companies=[...new Set(d.funds.map(f=>f.company).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'he'));
+    d.specs=[...new Set(d.funds.map(f=>f.spec).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'he'));
+    cache[p]=d;
+  }
+  return cache[p];
+}
+// monthly returns (%) for fund in [fromIdx..toIdx]; null where missing
+function monthly(id,fi,ti){
+  const s=D.series[id]; if(!s) return null;
+  const start=POS[s.s]; const out=[];
+  for(let i=fi;i<=ti;i++){ const j=i-start; out.push(j>=0&&j<s.r.length?s.r[j]:null); }
+  return out;
+}
+function stats(id,fi,ti){
+  const m=monthly(id,fi,ti); if(!m) return {full:false};
+  const got=m.filter(v=>v!=null), full=got.length===m.length;
+  if(!got.length) return {full:false};
+  let g=1; for(const v of got) g*=1+v/100;
+  const n=got.length, cum=g-1;
+  const ann=n>=12?Math.pow(g,12/n)-1:null;
+  const mean=got.reduce((a,b)=>a+b,0)/n;
+  const sd=n>1?Math.sqrt(got.reduce((a,b)=>a+(b-mean)**2,0)/(n-1))*Math.sqrt(12)/100:null;
+  return {full,cum,ann,sd,n};
+}
+
+// ---------- rendering ----------
+function fillPeriods(){
+  const opts=D.periods.map(p=>`<option value="${p}">${plab(p)}</option>`).join('');
+  $('from').innerHTML=opts; $('to').innerHTML=opts;
+  const last=D.periods[D.periods.length-1];
+  if(!state.to||POS[state.to]==null) state.to=last;
+  if(!state.from||POS[state.from]==null) state.from=D.periods[Math.max(0,POS[state.to]-35)];
+  if(POS[state.from]>POS[state.to]) [state.from,state.to]=[state.to,state.from];
+  $('from').value=state.from; $('to').value=state.to;
+}
+function fillFilters(){
+  $('company').innerHTML='<option value="">כל החברות</option>'+D.companies.map(c=>`<option>${esc(c)}</option>`).join('');
+  $('spec').innerHTML='<option value="">כל ההתמחויות</option>'+D.specs.map(c=>`<option>${esc(c)}</option>`).join('');
+  $('company').value=state.company; $('spec').value=state.spec;
+  $('spec').parentElement.style.display=D.specs.length?'':'none';
+}
+function colorOf(id){ const i=state.sel.indexOf(id); return i<0?null:COLORS[i%COLORS.length]; }
+
+const COLS=[
+  {k:'sel',label:''},{k:'rank',label:'#'},{k:'name',label:'מסלול'},
+  {k:'cum',label:'תשואה מצטברת'},{k:'ann',label:'ממוצעת שנתית'},{k:'sd',label:'סטיית תקן שנתית'},
+  {k:'fee',label:'דמי ניהול מצבירה'},{k:'feeDep',label:'דמי ניהול מהפקדה'},{k:'assets',label:'נכסים (מיליוני ₪)'}
+];
+function renderTable(){
+  const fi=POS[state.from], ti=POS[state.to], q=state.q.trim().toLowerCase();
+  let rows=D.funds.filter(f=>
+    (!state.company||f.company===state.company)&&(!state.spec||f.spec===state.spec)&&
+    (!q||(f.name+' '+f.company+' '+f.id).toLowerCase().includes(q))
+  ).map(f=>({f,...stats(f.id,fi,ti)}));
+  if(state.full) rows=rows.filter(r=>r.full);
+  const {k,d}=state.sort;
+  const val=r=>k==='name'?r.f.name:(k in r?r[k]:r.f[k]);
+  rows.sort((a,b)=>{ const x=val(a),y=val(b);
+    if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1;
+    return typeof x==='string'?d*x.localeCompare(y,'he'):d*(x-y); });
+  $('thead').innerHTML=COLS.map(c=>{
+    if(c.k==='sel'||c.k==='rank') return `<th>${c.label}</th>`;
+    const dir=state.sort.k===c.k?(state.sort.d<0?'▼':'▲'):null;
+    return `<th><button type="button" data-sort="${c.k}" ${dir?`data-dir="${dir}"`:''}>${c.label}</button></th>`;
+  }).join('');
+  const shown=rows.slice(0,state.show);
+  $('tbody').innerHTML=shown.length?shown.map((r,i)=>{
+    const c=colorOf(r.f.id), on=!!c;
+    return `<tr class="${on?'sel':''}">
+      <td><input type="checkbox" data-id="${esc(r.f.id)}" ${on?'checked':''} aria-label="הוסף לגרף: ${esc(r.f.name)}"></td>
+      <td class="rank">${c?`<span class="dot" style="--c:${c}"></span>`:i+1}</td>
+      <td class="name">${esc(r.f.name)}<small>${esc(r.f.company)} · ${esc(r.f.id)}${r.full?'':' · נתונים חלקיים'}</small></td>
+      <td>${pct(r.cum)}</td><td>${pct(r.ann)}</td>
+      <td>${r.sd==null?'<span class="na">—</span>':fmtN(r.sd*100)+'%'}</td>
+      <td>${r.f.fee==null?'<span class="na">—</span>':fmtN(r.f.fee)+'%'}</td>
+      <td>${r.f.feeDep==null?'<span class="na">—</span>':fmtN(r.f.feeDep)+'%'}</td>
+      <td>${r.f.assets==null?'<span class="na">—</span>':fmtN(r.f.assets,0)}</td>
+    </tr>`;}).join(''):`<tr><td colspan="${COLS.length}" class="empty">אין מסלולים שמתאימים לסינון. נסו לנקות את החיפוש או לבטל את הסימון "רק מסלולים עם נתונים לכל התקופה".</td></tr>`;
+  $('moreBox').innerHTML=rows.length>state.show?`<button type="button" class="more" id="moreBtn">הצג עוד ${Math.min(50,rows.length-state.show)} מתוך ${rows.length-state.show} נוספים</button>`:'';
+  $('meta').textContent=`${rows.length} מסלולים · ${plab(state.from)} עד ${plab(state.to)} (${ti-fi+1} חודשים) · עודכן ${INDEX.updated}`;
+}
+
+function renderChips(){
+  $('chips').innerHTML=state.sel.map(id=>{ const f=D.byId[id]; if(!f) return '';
+    return `<span class="chip" style="--c:${colorOf(id)}">${esc(f.name)}<button type="button" data-rm="${esc(id)}" aria-label="הסר ${esc(f.name)}">×</button></span>`; }).join('');
+}
+
+function niceStep(range){ const raw=range/5, mag=Math.pow(10,Math.floor(Math.log10(raw||1))), n=raw/mag;
+  return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*mag; }
+
+function renderChart(){
+  const svg=$('chart'), W=Math.round(Math.max(320,Math.min(1100,$('chartBox').clientWidth||900))), H=W<600?280:340, L=W<600?50:64, R=W<600?12:20, T=16, B=46;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const cs=getComputedStyle(document.documentElement), col=v=>cs.getPropertyValue(v).trim();
+  const fi=POS[state.from], ti=POS[state.to], n=ti-fi+1;
+  $('chartTitle').textContent=`תשואה מצטברת · ${PRODUCT_NAMES[state.p]} · ${plab(state.from)} עד ${plab(state.to)}`;
+  const lines=state.sel.filter(id=>D.byId[id]).map(id=>{
+    const m=monthly(id,fi,ti)||[]; let g=1; const pts=[{i:0,v:0}];
+    m.forEach((v,k)=>{ if(v==null){ pts.push({i:k+1,v:null}); } else { g*=1+v/100; pts.push({i:k+1,v:g-1}); } });
+    return {id,color:colorOf(id),pts};
+  });
+  if(!lines.length){
+    svg.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="15" fill="${col('--muted')}">סמנו מסלולים בטבלה שלמטה כדי להשוות ביניהם בגרף</text>`;
+    chartState=null; return;
+  }
+  let lo=0,hi=0; lines.forEach(l=>l.pts.forEach(p=>{ if(p.v!=null){ lo=Math.min(lo,p.v); hi=Math.max(hi,p.v); } }));
+  if(hi-lo<0.01){ hi+=0.005; lo-=0.005; }
+  const step=niceStep(hi-lo), top=Math.ceil(hi/step)*step, bot=Math.floor(lo/step)*step;
+  const X=i=>L+(i/n)*(W-L-R), Y=v=>T+(top-v)/(top-bot)*(H-T-B);
+  let s='';
+  for(let v=bot;v<=top+step/1e6;v+=step){ const y=Y(v), zero=Math.abs(v)<step/1e6;
+    s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="${col(zero?'--muted':'--line')}" ${zero?'stroke-width="1.2"':''}/>`;
+    s+=`<text x="${L-8}" y="${y+4}" text-anchor="end" font-size="12" fill="${col('--muted')}">${+(v*100).toFixed(1)}%</text>`; }
+  // x ticks: month labels at sensible spacing (index i = end of month fi+i-1; i=0 is start)
+  const every=n<=14?1:n<=30?3:n<=72?6:12;
+  for(let i=0;i<=n;i++){
+    const p=i===0?null:D.periods[fi+i-1];
+    const month=p?p%100:null;
+    const show=i===0||i===n||(p&&(every===12?month===12:(month%every===0)));
+    if(!show) continue;
+    if(i!==0&&i!==n&&(X(n)-X(i)<52||X(i)-X(0)<52)) continue;
+    const x=X(i);
+    s+=`<line x1="${x}" x2="${x}" y1="${H-B}" y2="${H-B+5}" stroke="${col('--muted')}"/>`;
+    s+=`<text x="${x}" y="${H-B+19}" text-anchor="middle" font-size="11.5" fill="${col('--muted')}">${i===0?'התחלה':plab(p)}</text>`;
+  }
+  for(const l of lines){
+    let d='',pen=false;
+    for(const p of l.pts){ if(p.v==null){pen=false;continue;} d+=(pen?'L':'M')+X(p.i).toFixed(1)+','+Y(p.v).toFixed(1); pen=true; }
+    s+=`<path d="${d}" fill="none" stroke="${l.color}" stroke-width="2.2" stroke-linejoin="round"/>`;
+    const last=[...l.pts].reverse().find(p=>p.v!=null);
+    if(last) s+=`<circle cx="${X(last.i)}" cy="${Y(last.v)}" r="3.5" fill="${l.color}"/>`;
+  }
+  s+=`<g id="hover" style="display:none"><line id="hLine" y1="${T}" y2="${H-B}" stroke="${col('--muted')}" stroke-dasharray="3 3"/>`;
+  lines.forEach((l,k)=>s+=`<circle id="hc${k}" r="4.5" fill="${col('--panel')}" stroke="${l.color}" stroke-width="2.5"/>`);
+  s+='</g>';
+  svg.innerHTML=s;
+  chartState={lines,n,X,Y,fi,W,L,R};
+}
+function onHover(e){
+  if(!chartState) return;
+  const {lines,n,X,Y,fi,W,L,R}=chartState, r=$('chart').getBoundingClientRect();
+  const i=Math.max(0,Math.min(n,Math.round(((e.clientX-r.left)/r.width*W-L)/(W-L-R)*n)));
+  $('hover').style.display=''; $('hLine').setAttribute('x1',X(i)); $('hLine').setAttribute('x2',X(i));
+  const rows=lines.map((l,k)=>{ const p=l.pts[i]; const c=$('hc'+k);
+    if(p&&p.v!=null){ c.style.display=''; c.setAttribute('cx',X(i)); c.setAttribute('cy',Y(p.v)); } else c.style.display='none';
+    return {l,v:p?p.v:null}; }).sort((a,b)=>(b.v??-1e9)-(a.v??-1e9));
+  let html=`<b>${i===0?'תחילת התקופה':'סוף '+plab(D.periods[fi+i-1])}</b>`;
+  for(const {l,v} of rows) html+=`<div><i style="--c:${l.color}">${esc(D.byId[l.id].name)}</i><span>${v==null?'—':fmtN(v*100)+'%'}</span></div>`;
+  const tip=$('tip'); tip.innerHTML=html; tip.style.display='block';
+  const box=$('chartBox').getBoundingClientRect(), px=e.clientX-box.left, tw=tip.offsetWidth;
+  let left=px+14; if(left+tw>box.width) left=px-tw-14; tip.style.left=Math.max(0,left)+'px';
+}
+function hideHover(){ $('tip').style.display='none'; const h=$('hover'); if(h) h.style.display='none'; }
+
+function renderAll(){ writeHash(); renderChips(); renderChart(); renderTable(); }
+
+async function setProduct(p,keepSel){
+  state.p=p; D=await loadProduct(p); POS=D.pos;
+  if(!keepSel){ state.sel=[]; state.company=''; state.spec=''; }
+  state.sel=state.sel.filter(id=>D.byId[id]);
+  state.show=50;
+  document.querySelectorAll('#products button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===p));
+  fillPeriods(); fillFilters(); renderAll();
+}
+
+// ---------- events ----------
+$('products').addEventListener('click',e=>{ const b=e.target.closest('button[data-p]'); if(b&&!b.disabled&&b.dataset.p!==state.p) setProduct(b.dataset.p,false); });
+$('from').addEventListener('change',e=>{ state.from=+e.target.value; if(POS[state.from]>POS[state.to]){ state.to=state.from; $('to').value=state.to; } renderAll(); });
+$('to').addEventListener('change',e=>{ state.to=+e.target.value; if(POS[state.from]>POS[state.to]){ state.from=state.to; $('from').value=state.from; } renderAll(); });
+$('quick').addEventListener('click',e=>{ const b=e.target.closest('button[data-q]'); if(!b) return;
+  const last=D.periods.length-1; state.to=D.periods[last];
+  if(b.dataset.q==='all') state.from=D.periods[0];
+  else if(b.dataset.q==='ytd'){ const y=Math.floor(state.to/100); state.from=D.periods.find(p=>Math.floor(p/100)===y); }
+  else state.from=D.periods[Math.max(0,last-(+b.dataset.q)+1)];
+  $('from').value=state.from; $('to').value=state.to; renderAll(); });
+let qt; $('q').addEventListener('input',e=>{ clearTimeout(qt); qt=setTimeout(()=>{ state.q=e.target.value; state.show=50; renderTable(); },150); });
+$('company').addEventListener('change',e=>{ state.company=e.target.value; state.show=50; renderTable(); });
+$('spec').addEventListener('change',e=>{ state.spec=e.target.value; state.show=50; renderTable(); });
+$('fullOnly').addEventListener('change',e=>{ state.full=e.target.checked; renderTable(); });
+$('thead').addEventListener('click',e=>{ const b=e.target.closest('button[data-sort]'); if(!b) return;
+  const k=b.dataset.sort; state.sort=state.sort.k===k?{k,d:-state.sort.d}:{k,d:k==='name'?1:-1}; renderTable(); });
+$('tbody').addEventListener('change',e=>{ const c=e.target.closest('input[data-id]'); if(!c) return;
+  const id=c.dataset.id;
+  if(c.checked){ if(state.sel.length>=MAX_SEL){ c.checked=false; alert(`אפשר להשוות עד ${MAX_SEL} מסלולים בגרף. הסירו מסלול כדי להוסיף אחר.`); return; } state.sel.push(id); }
+  else state.sel=state.sel.filter(x=>x!==id);
+  renderAll(); });
+$('chips').addEventListener('click',e=>{ const b=e.target.closest('button[data-rm]'); if(!b) return; state.sel=state.sel.filter(x=>x!==b.dataset.rm); renderAll(); });
+$('moreBox').addEventListener('click',e=>{ if(e.target.id==='moreBtn'){ state.show+=50; renderTable(); } });
+$('chart').addEventListener('pointermove',onHover);
+$('chart').addEventListener('pointerdown',onHover);
+$('chart').addEventListener('pointerleave',hideHover);
+let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>D&&renderChart(),150); });
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>D&&renderChart());
+
+// ---------- start ----------
+(async()=>{
+  readHash();
+  try{ INDEX=await getJSON('data/index.json'); }
+  catch(e){
+    $('chart').innerHTML='';
+    $('tbody').innerHTML=`<tr><td colspan="9" class="empty">עדיין אין נתונים באתר. היכנסו ב־GitHub ללשונית Actions, בחרו "עדכון נתוני תשואות" ולחצו Run workflow. אחרי כמה דקות רעננו את הדף.</td></tr>`;
+    return;
+  }
+  const avail=Object.keys(INDEX.products);
+  document.querySelectorAll('#products button').forEach(b=>b.disabled=!avail.includes(b.dataset.p));
+  const p=avail.includes(state.p)?state.p:avail[0];
+  await setProduct(p,true);
+})();
+</script>
+</body>
+</html>

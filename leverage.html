@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>סימולטור מינוף</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F4; --panel:#FFFFFF; --ink:#18263A; --muted:#5D6B7C; --line:#DCE2E6;
+  --equity:#0F7C6E; --debt:#C27A12; --accent:#2F5DA8; --soft:#EAF0F7;
+  --c-grace:#2F5DA8; --c-balloon:#B4472F; --c-spitzer:#0F7C6E;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161F; --panel:#172130; --ink:#E6ECF2; --muted:#9AA8B8; --line:#2A3748;
+    --equity:#3DBBA8; --debt:#E3A03F; --accent:#7EA6E8; --soft:#1E2B3D;
+    --c-grace:#7EA6E8; --c-balloon:#E97B62; --c-spitzer:#3DBBA8;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10161F; --panel:#172130; --ink:#E6ECF2; --muted:#9AA8B8; --line:#2A3748;
+  --equity:#3DBBA8; --debt:#E3A03F; --accent:#7EA6E8; --soft:#1E2B3D;
+  --c-grace:#7EA6E8; --c-balloon:#E97B62; --c-spitzer:#3DBBA8;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans Hebrew","Arial Hebrew",Arial,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
+header h1{font-size:clamp(1.7rem,3.2vw,2.4rem);font-weight:700;margin:0 0 4px;letter-spacing:-.01em}
+header p{margin:0 0 24px;color:var(--muted);max-width:60ch}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.grid>*,.stack>*{min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.inputs{position:sticky;top:calc(16px + env(safe-area-inset-top,0px))}
+@media (max-width:900px){.inputs{position:static}}
+.inputs h2,.panel h2{font-size:1.05rem;font-weight:700;margin:0 0 14px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.9rem;font-weight:500;margin-bottom:6px}
+.field .hint{font-size:.78rem;color:var(--muted);margin-top:4px}
+.inp{position:relative}
+.inp input{width:100%;font:inherit;font-size:1.05rem;font-variant-numeric:tabular-nums;
+  padding:10px 12px 10px 40px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);direction:ltr;text-align:right}
+.inp .unit{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;pointer-events:none}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--debt);margin-top:8px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rate-sum{background:var(--soft);border-radius:9px;padding:10px 12px;font-size:.9rem;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.rate-sum b{font-variant-numeric:tabular-nums}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+
+/* capital structure bar */
+.structure .totals{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.structure .big{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.structure .sub{color:var(--muted);font-size:.9rem}
+.bar{display:flex;height:54px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.bar div{display:flex;align-items:center;padding:0 12px;color:#fff;font-weight:500;font-size:.9rem;white-space:nowrap;overflow:hidden;transition:width .35s ease}
+.bar .eq{background:var(--equity)} .bar .dt{background:var(--debt)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:.88rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:6px;vertical-align:middle}
+.legend .l-eq::before{background:var(--equity)} .legend .l-dt::before{background:var(--debt)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.kpi{border-top:2px solid var(--line);padding-top:8px}
+.kpi .v{font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums}
+.kpi .k{font-size:.8rem;color:var(--muted)}
+@media (max-width:520px){.kpis{grid-template-columns:1fr 1fr}}
+
+/* loan comparison */
+.stack{display:grid;gap:22px}
+.types{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:700px){.types{grid-template-columns:1fr}}
+.type{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--panel);cursor:pointer;text-align:right;font:inherit;color:inherit;
+  border-top:4px solid var(--c);transition:background .2s}
+.type[aria-pressed="true"]{background:var(--soft);box-shadow:inset 0 0 0 1px var(--c)}
+.type h3{margin:0;font-size:1.05rem}
+.type .desc{font-size:.8rem;color:var(--muted);margin:2px 0 12px;min-height:2.4em}
+.type dl{margin:0;display:grid;grid-template-columns:1fr auto;row-gap:6px;column-gap:8px;font-size:.88rem}
+.type dt{color:var(--muted)} .type dd{margin:0;font-weight:500;font-variant-numeric:tabular-nums}
+.type .hl{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;margin-bottom:10px}
+.type .hl small{display:block;font-size:.75rem;font-weight:400;color:var(--muted)}
+.pos{color:var(--equity)} .neg{color:var(--c-balloon)}
+
+.chart-box{position:relative}
+.chart-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.chart-head h2{margin:0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{font:inherit;font-size:.85rem;border:0;background:transparent;color:var(--muted);padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--soft);color:var(--ink);font-weight:500}
+.chart-sub{font-size:.82rem;color:var(--muted);margin:0 0 8px}
+#chart{display:block;touch-action:pan-y;cursor:crosshair}
+.tip{position:absolute;top:8px;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:.8rem;box-shadow:0 4px 14px rgba(0,0,0,.12);min-width:170px;display:none;direction:rtl}
+.tip b{display:block;margin-bottom:4px}
+.tip div{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.tip i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
+.tip i::before{content:"";width:10px;height:3px;background:var(--c)}
+svg text{font-family:inherit}
+.chart-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin-top:6px}
+.chart-legend span::before{content:"";display:inline-block;width:14px;height:3px;margin-inline-end:6px;vertical-align:middle;background:var(--c)}
+
+.table-box{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums;min-width:560px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:right}
+th{font-weight:500;color:var(--muted);font-size:.8rem}
+tbody tr:last-child td{font-weight:700}
+.tab-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.tab-head .tag{font-size:.85rem;color:var(--muted)}
+.ystats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+@media (max-width:640px){.ystats{grid-template-columns:1fr}}
+.ystat{background:var(--soft);border-radius:10px;padding:12px 14px}
+.ystat .k{font-size:.82rem;color:var(--muted)}
+.ystat .v{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.3}
+.ystat .s{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+#yTable td:first-child{color:var(--ink)}
+#yTable tr.sum td{font-weight:700;border-top:2px solid var(--line)}
+#yTable th.sel,#yTable td.sel{background:var(--soft)}
+#yTable td .sm{display:block;font-size:.75rem;color:var(--muted);font-weight:400}
+.note{font-size:.8rem;color:var(--muted);margin-top:10px;max-width:75ch}
+.topnav{background:var(--panel);border-bottom:1px solid var(--line)}
+.topnav .in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.topnav .brand{font-weight:700}
+.topnav a{color:var(--muted);text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+.topnav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+</style>
+</head>
+<body>
+<nav class="topnav" aria-label="ניווט ראשי">
+  <div class="in">
+    <span class="brand">תשואות ומינוף</span>
+    <a href="index.html">השוואת תשואות</a>
+    <a href="leverage.html" aria-current="page">סימולטור מינוף</a>
+  </div>
+</nav>
+<div class="wrap">
+  <header>
+    <h1>סימולטור מינוף</h1>
+    <p>הזינו את הסכום הצבור, בחרו כמה למנף ואת תנאי ההלוואה, והשוו בין גרייס, בלון ושפיצר.</p>
+  </header>
+
+  <div class="grid">
+    <aside class="panel inputs" aria-label="נתוני הסימולציה">
+      <h2>הנתונים שלך</h2>
+
+      <div class="field">
+        <label for="equity">סכום צבור (הון עצמי)</label>
+        <div class="inp"><input id="equity" inputmode="numeric" value="500,000"><span class="unit">₪</span></div>
+      </div>
+
+      <div class="field">
+        <label for="dep">הפקדה חודשית להון העצמי</label>
+        <div class="inp"><input id="dep" inputmode="numeric" value="0"><span class="unit">₪</span></div>
+        <div class="hint">מופקדת בסוף כל חודש לאורך תקופת ההלוואה ומושקעת באותה תשואה.</div>
+      </div>
+
+      <div class="field">
+        <label for="pct">אחוז מינוף מהסכום הצבור</label>
+        <div class="inp"><input id="pct" inputmode="decimal" value="80"><span class="unit">%</span></div>
+        <input type="range" id="pctRange" min="0" max="80" step="1" value="80" aria-label="אחוז מינוף">
+        <div class="hint">עד 80% מהסכום הצבור.</div>
+      </div>
+
+      <div class="field">
+        <label for="loan">סכום למינוף (ההלוואה)</label>
+        <div class="inp"><input id="loan" inputmode="numeric" value="400,000"><span class="unit">₪</span></div>
+        <div class="hint">אפשר לשנות את האחוז או את הסכום, והשני יתעדכן. הסכום מוגבל ל־80% מהסכום הצבור.</div>
+      </div>
+
+      <div class="field">
+        <label for="years">תקופת ההלוואה</label>
+        <div class="inp"><input id="years" inputmode="decimal" value="5"><span class="unit">שנים</span></div>
+      </div>
+
+      <hr>
+
+      <div class="pair">
+        <div class="field">
+          <label for="prime">ריבית פריים</label>
+          <div class="inp"><input id="prime" inputmode="decimal" value="6"><span class="unit">%</span></div>
+        </div>
+        <div class="field">
+          <label for="spread">פער מהפריים</label>
+          <div class="inp"><input id="spread" inputmode="decimal" value="0.5"><span class="unit">%</span></div>
+        </div>
+      </div>
+      <div class="hint" style="margin:-8px 0 10px;font-size:.78rem;color:var(--muted)">פער שלילי (למשל ‎-0.5) = פריים מינוס.</div>
+      <div class="rate-sum">
+        <span>שנתית: <b id="annualRate"></b></span>
+        <span>חודשית: <b id="monthlyRate"></b></span>
+      </div>
+
+      <hr>
+
+      <div class="field">
+        <label for="ret">תשואה שנתית צפויה על ההשקעה</label>
+        <div class="inp"><input id="ret" inputmode="decimal" value="8"><span class="unit">%</span></div>
+      </div>
+      <div class="field">
+        <label for="fee">דמי ניהול שנתיים</label>
+        <div class="inp"><input id="fee" inputmode="decimal" value="0.7"><span class="unit">%</span></div>
+        <div class="hint">מנוכים מהתשואה, על כל הסכום המושקע.</div>
+      </div>
+    </aside>
+
+    <main class="stack">
+      <section class="panel structure" aria-label="מבנה ההון">
+        <div class="totals">
+          <div>
+            <div class="sub">סך הכל להשקעה</div>
+            <div class="big" id="total"></div>
+          </div>
+          <div class="sub" id="ltv"></div>
+        </div>
+        <div class="bar" role="img" id="barImg">
+          <div class="eq" id="barEq"></div>
+          <div class="dt" id="barDt"></div>
+        </div>
+        <div class="legend"><span class="l-eq">הון עצמי</span><span class="l-dt">מינוף (הלוואה)</span></div>
+        <div class="kpis">
+          <div class="kpi"><div class="v" id="kLoan"></div><div class="k">סכום ההלוואה</div></div>
+          <div class="kpi"><div class="v" id="kMult"></div><div class="k">מכפיל הון</div></div>
+          <div class="kpi"><div class="v" id="kBreak"></div><div class="k">תשואת איזון (ריבית + דמי ניהול)</div></div>
+        </div>
+      </section>
+
+      <section aria-label="השוואת מסלולי החזר">
+        <div class="types" id="types"></div>
+      </section>
+
+      <section class="panel" aria-label="תשואה בתקופת ההלוואה">
+        <div class="tab-head">
+          <h2>התשואה בתקופת ההלוואה</h2>
+          <span class="tag" id="yTag"></span>
+        </div>
+        <div class="ystats">
+          <div class="ystat"><div class="k">תשואה על ההון העצמי</div><div class="v" id="yEq"></div><div class="s" id="yEqS"></div></div>
+          <div class="ystat"><div class="k">תשואה על הקרן הממונפת</div><div class="v" id="yLev"></div><div class="s" id="yLevS"></div></div>
+          <div class="ystat"><div class="k">דמי ניהול בתקופה</div><div class="v" id="yFee"></div><div class="s" id="yFeeS"></div></div>
+        </div>
+        <div class="table-box">
+          <table id="yTable">
+            <thead><tr><th></th><th data-k="grace">גרייס</th><th data-k="balloon">בלון</th><th data-k="spitzer">שפיצר</th></tr></thead>
+            <tbody id="yBody"></tbody>
+          </table>
+        </div>
+        <p class="note">הסכומים אחרי דמי ניהול. הרווח נטו מהמינוף הוא התשואה על הקרן הממונפת פחות הריבית ששולמה בתקופה. הרווח המשוקלל הוא התשואה על ההון העצמי ועוד הרווח נטו מהמינוף. לא כולל מס.</p>
+      </section>
+
+      <section class="panel" aria-label="גרף ההלוואה לאורך זמן">
+        <div class="chart-head">
+          <h2 id="chartTitle">יתרת החוב לאורך התקופה</h2>
+          <div class="seg" role="group" aria-label="סוג גרף">
+            <button type="button" data-mode="balance" aria-pressed="true">יתרת חוב</button>
+            <button type="button" data-mode="cum" aria-pressed="false">תשלומים מצטברים</button>
+          </div>
+        </div>
+        <p class="chart-sub" id="chartSub"></p>
+        <div class="chart-box" id="chartBox">
+          <svg id="chart" viewBox="0 0 760 300" width="100%" style="direction:ltr" role="img" aria-label="גרף ההלוואה"></svg>
+          <div class="tip" id="tip"></div>
+        </div>
+        <div class="chart-legend">
+          <span style="--c:var(--c-grace)">גרייס</span>
+          <span style="--c:var(--c-balloon)">בלון</span>
+          <span style="--c:var(--c-spitzer)">שפיצר</span>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="לוח סילוקין שנתי">
+        <div class="tab-head">
+          <h2>לוח סילוקין שנתי</h2>
+          <span class="tag" id="tableTag"></span>
+        </div>
+        <div class="table-box">
+          <table>
+            <thead><tr><th>שנה</th><th>תשלומים בשנה</th><th>ריבית</th><th>קרן</th><th>יתרה בסוף שנה</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <p class="note">הריבית מחושבת כריבית שנתית חלקי 12, והיא קבועה לאורך כל התקופה (בפועל ריבית פריים משתנה). בבלון הריבית נצברת ומתווספת לקרן מדי חודש. חישוב הרווח נטו מניח שהתשלומים החודשיים משולמים ממקור אחר ושהתשואה נצברת בריבית דריבית שנתית. הסימולציה לצורך המחשה בלבד ואינה ייעוץ השקעות או אשראי.</p>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = (v, d=0) => isFinite(v) ? v.toLocaleString('he-IL',{minimumFractionDigits:d,maximumFractionDigits:d}) : '—';
+const ils = v => '₪' + fmt(Math.round(v));
+const num = el => { const n = parseFloat(String(el.value).replace(/[^\d.\-]/g,'')); return isNaN(n) ? 0 : n; };
+const withCommas = el => { const n = num(el); el.value = n ? fmt(n) : (el.value.trim()==='' ? '' : '0'); };
+
+let selected = 'spitzer';
+const TYPES = {
+  grace:   {name:'גרייס', desc:'ריבית בלבד כל חודש, הקרן כולה בסוף', color:'var(--c-grace)'},
+  balloon: {name:'בלון', desc:'אין תשלומים חודשיים, קרן + ריבית בסוף', color:'var(--c-balloon)'},
+  spitzer: {name:'שפיצר', desc:'תשלום חודשי קבוע של קרן וריבית', color:'var(--c-spitzer)'}
+};
+
+function schedule(type, P, r, n){
+  // returns monthly rows: {pay, interest, principal, bal}
+  const rows = []; let bal = P;
+  const pmt = type==='spitzer' ? (r===0 ? P/n : P*r/(1-Math.pow(1+r,-n))) : 0;
+  for(let k=1;k<=n;k++){
+    const int = bal*r; let pay=0, prin=0;
+    if(type==='grace'){ pay = int + (k===n?bal:0); prin = k===n?bal:0; bal -= prin; }
+    else if(type==='balloon'){ if(k===n){ pay = bal+int; prin = P; bal = 0; } else { bal += int; } }
+    else { pay = pmt; prin = pmt-int; bal -= prin; if(k===n) bal = 0; }
+    rows.push({pay, interest: type==='balloon' ? (k===n ? pay-P : 0) : int, accrued:int, principal:prin, bal:Math.max(bal,0)});
+  }
+  return {rows, pmt};
+}
+
+function calc(){
+  const E = num($('equity')), P = num($('loan')), years = Math.max(num($('years')),0);
+  const annual = num($('prime')) + num($('spread'));
+  const r = annual/100/12, n = Math.round(years*12);
+  const ret = num($('ret'))/100, fee = num($('fee'))/100, netRet = ret - fee;
+  const T = E + P;
+
+  $('annualRate').textContent = fmt(annual,2)+'%';
+  $('monthlyRate').textContent = fmt(annual/12,3)+'%';
+  $('total').textContent = ils(T);
+  $('ltv').textContent = T>0 ? `ההלוואה מהווה ${fmt(P/T*100,1)}% מסך ההשקעה` : '';
+  const eqW = T>0 ? E/T*100 : 100;
+  $('barEq').style.width = eqW+'%'; $('barDt').style.width = (100-eqW)+'%';
+  $('barEq').textContent = eqW>14 ? ils(E) : ''; $('barDt').textContent = (100-eqW)>14 ? ils(P) : '';
+  $('barImg').setAttribute('aria-label',`הון עצמי ${ils(E)}, הלוואה ${ils(P)}`);
+  $('kLoan').textContent = ils(P);
+  $('kMult').textContent = E>0 ? '×'+fmt(T/E,2) : '—';
+  $('kBreak').textContent = fmt(annual+fee*100,2)+'%';
+
+  const g = Math.pow(1+netRet, years) - 1;          // cumulative net growth factor
+  const gGross = Math.pow(1+ret, years) - 1;
+  const D = Math.max(num($('dep')),0), depTotal = D*n;
+  const fvAnn = (rate) => { const rm = Math.pow(1+rate,1/12)-1; return n<=0?0 : Math.abs(rm)<1e-12 ? n : (Math.pow(1+rm,n)-1)/rm; };
+  const depFV = D*fvAnn(netRet), depProfit = depFV - depTotal, depFeeGap = D*fvAnn(ret) - depFV;
+  const ownCap = E + depTotal;
+  const eqProfit = E*g + depProfit, levProfit = P*g, feePaid = T*(gGross-g) + depFeeGap;
+  const finalValue = T*(1+g);
+  const yRows = {};
+  const results = {};
+  const box = $('types'); box.innerHTML='';
+  for(const key of ['grace','balloon','spitzer']){
+    const {rows, pmt} = n>0 ? schedule(key,P,r,n) : {rows:[],pmt:0};
+    const totalPaid = rows.reduce((s,x)=>s+x.pay,0);
+    const totalInt = totalPaid - (n>0?P:0);
+    const last = rows.length ? rows[rows.length-1].pay : 0;
+    const monthly = key==='grace' ? P*r : key==='spitzer' ? pmt : 0;
+    const net = eqProfit + levProfit - totalInt;
+    results[key] = rows; yRows[key] = {totalInt, levNet: levProfit-totalInt, total: eqProfit+levProfit-totalInt};
+    const t = TYPES[key];
+    const btn = document.createElement('button');
+    btn.className='type'; btn.type='button'; btn.style.setProperty('--c',t.color);
+    btn.setAttribute('aria-pressed', key===selected);
+    btn.innerHTML = `
+      <h3>${t.name}</h3><div class="desc">${t.desc}</div>
+      <div class="hl">${ils(monthly)}<small>תשלום חודשי</small></div>
+      <dl>
+        <dt>תשלום אחרון</dt><dd>${ils(last)}</dd>
+        <dt>סך ריבית</dt><dd>${ils(totalInt)}</dd>
+        <dt>סך החזר</dt><dd>${ils(totalPaid)}</dd>
+        <dt>רווח נטו משוער</dt><dd class="${net>=0?'pos':'neg'}">${ils(net)}</dd>
+        <dt>תשואה על ההון</dt><dd class="${net>=0?'pos':'neg'}">${ownCap>0?fmt(net/ownCap*100,1)+'%':'—'}</dd>
+      </dl>`;
+    btn.addEventListener('click',()=>{selected=key;calc();});
+    box.appendChild(btn);
+  }
+  drawYield(yRows, {E,P,years,n,g,eqProfit,levProfit,feePaid,netRet,D,depTotal,depProfit,ownCap});
+  drawChart(results, P, n);
+  drawTable(results[selected], n);
+}
+
+function drawYield(y, d){
+  const pct = v => fmt(v*100,1)+'%';
+  const cls = v => v>=0?'pos':'neg';
+  $('yTag').textContent = `תשואה נטו ${fmt(d.netRet*100,2)}% לשנה, ${fmt(d.years,1)} שנים`;
+  $('yEq').textContent = ils(d.eqProfit); $('yEqS').textContent = d.D>0 ? `על ${ils(d.ownCap)}: ${ils(d.E)} צבור ועוד ${ils(d.depTotal)} הפקדות` : `${pct(d.g)} מצטבר על ${ils(d.E)}`;
+  $('yLev').textContent = ils(d.levProfit); $('yLevS').textContent = `${pct(d.g)} מצטבר על ${ils(d.P)}`;
+  $('yFee').textContent = ils(d.feePaid); $('yFeeS').textContent = 'הפער בין תשואה ברוטו לנטו';
+  const K=['grace','balloon','spitzer'];
+  const sc = k => k===selected?' class="sel"':'';
+  document.querySelectorAll('#yTable th[data-k]').forEach(th=>th.classList.toggle('sel',th.dataset.k===selected));
+  const row = (label, fn, extra='') => `<tr${extra}><td>${label}</td>${K.map(k=>`<td${sc(k)}>${fn(k)}</td>`).join('')}</tr>`;
+  // money-weighted annual return on own capital (initial + monthly deposits)
+  const annual = tot => {
+    if(d.n<=0 || d.ownCap<=0) return '—';
+    const fin = d.ownCap + tot; if(fin<=0) return '—';
+    const f = m => d.E*Math.pow(1+m,d.n) + (Math.abs(m)<1e-12 ? d.D*d.n : d.D*(Math.pow(1+m,d.n)-1)/m) - fin;
+    let lo=-0.99, hi=1; for(let i=0;i<200;i++){ const mid=(lo+hi)/2; if(f(mid)>0) hi=mid; else lo=mid; }
+    return pct(Math.pow(1+(lo+hi)/2,12)-1);
+  };
+  $('yBody').innerHTML =
+    row('תשואה על הקרן הממונפת', ()=>ils(d.levProfit)) +
+    row('ריבית בתקופה', k=>'−'+ils(y[k].totalInt)) +
+    row('רווח נטו מהמינוף', k=>`<span class="${cls(y[k].levNet)}">${ils(y[k].levNet)}</span>`) +
+    (d.D>0 ? row('תשואה על הסכום הצבור', ()=>ils(d.eqProfit-d.depProfit)) + row('תשואה על ההפקדות החודשיות', ()=>ils(d.depProfit)) : '') +
+    row('תשואה על ההון העצמי', ()=>ils(d.eqProfit)) +
+    row('סה״כ רווח משוקלל', k=>`<span class="${cls(y[k].total)}">${ils(y[k].total)}</span><span class="sm">${d.ownCap>0?pct(y[k].total/d.ownCap)+' על ההון העצמי':''}</span>`, ' class="sum"') +
+    row('תשואה שנתית ממוצעת על ההון', k=>annual(y[k].total)) +
+    row('תרומת המינוף מול השקעה ללא הלוואה', k=>`<span class="${cls(y[k].levNet)}">${d.eqProfit? (y[k].levNet>=0?'+':'')+fmt(y[k].levNet/Math.abs(d.eqProfit)*100,0)+'%' : '—'}</span>`);
+}
+
+let chartMode='balance', chartState=null;
+const CH={W:760,H:300,L:78,R:24,T:18,B:44};
+function buildSeries(rows,P,n,type,mode){
+  // one value per month 0..n; for balance, final month also keeps the pre-payment value
+  const pts=[{m:0,v:mode==='balance'?P:0}]; let cum=0;
+  rows.forEach((x,i)=>{
+    const m=i+1;
+    if(mode==='balance'){
+      if(m===n){
+        const pre = type==='grace' ? P : type==='balloon' ? x.pay : x.pay;
+        pts.push({m,v:pre}); pts.push({m,v:0,post:true});
+      } else pts.push({m,v:x.bal});
+    } else { cum+=x.pay; pts.push({m,v:cum}); }
+  });
+  return pts;
+}
+function niceStep(max){ const raw=max/5, mag=Math.pow(10,Math.floor(Math.log10(raw))), nr=raw/mag;
+  return (nr<=1?1:nr<=2?2:nr<=2.5?2.5:nr<=5?5:10)*mag; }
+function shortIls(v){ if(v>=1e6) return '₪'+(+(v/1e6).toFixed(2))+'M'; if(v>=1e3) return '₪'+(+(v/1e3).toFixed(0))+'K'; return '₪'+Math.round(v); }
+
+function drawChart(results, P, n){
+  const svg=$('chart'), {W,H,L,R,T,B}=CH;
+  const cs=getComputedStyle(document.documentElement), col=v=>cs.getPropertyValue(v).trim();
+  $('chartTitle').textContent = chartMode==='balance' ? 'יתרת החוב לאורך התקופה' : 'סך התשלומים המצטבר';
+  $('chartSub').textContent = chartMode==='balance'
+    ? 'כמה נשאר לשלם בכל רגע. בגרייס ובבלון החוב נפרע בבת אחת בסוף התקופה.'
+    : 'כמה כסף יצא מהכיס עד כל נקודת זמן, כולל ריבית וקרן.';
+  if(!n || !P){ svg.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="14" fill="${col('--muted')}">הזינו סכום הלוואה ותקופה כדי לראות גרף</text>`; chartState=null; return; }
+  const series={}; let maxY=0;
+  for(const k of ['grace','balloon','spitzer']){ series[k]=buildSeries(results[k],P,n,k,chartMode); for(const p of series[k]) maxY=Math.max(maxY,p.v); }
+  const step=niceStep(maxY), top=Math.ceil(maxY/step)*step;
+  const X=m=>L+(m/n)*(W-L-R), Y=v=>T+(1-v/top)*(H-T-B);
+  let s='';
+  for(let v=0;v<=top+1e-6;v+=step){ const y=Y(v);
+    s+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="${col('--line')}" ${v===0?'stroke-width="1.5"':''}/>`;
+    s+=`<text x="${L-10}" y="${y+4}" text-anchor="end" font-size="12" fill="${col('--muted')}">${shortIls(v)}</text>`; }
+  const years=n/12, ys=Math.max(1,Math.ceil(years/10));
+  const ticks=[]; for(let y=0;y<=years+1e-9;y+=ys) ticks.push(y); if(Math.abs(ticks[ticks.length-1]-years)>1e-9) ticks.push(years);
+  for(const y of ticks){ const x=X(y*12);
+    s+=`<line x1="${x}" x2="${x}" y1="${H-B}" y2="${H-B+5}" stroke="${col('--muted')}"/>`;
+    s+=`<text x="${x}" y="${H-B+20}" text-anchor="middle" font-size="12" fill="${col('--muted')}">${+y.toFixed(1)}</text>`; }
+  s+=`<text x="${(L+W-R)/2}" y="${H-4}" text-anchor="middle" font-size="12" fill="${col('--muted')}">שנים</text>`;
+  const colors={grace:'--c-grace',balloon:'--c-balloon',spitzer:'--c-spitzer'};
+  const order=['grace','balloon','spitzer'].filter(k=>k!==selected).concat(selected);
+  for(const k of order){
+    const pts=series[k].map(p=>`${X(p.m).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' ');
+    const sel=k===selected;
+    s+=`<polyline fill="none" stroke="${col(colors[k])}" stroke-width="${sel?3:1.8}" stroke-opacity="${sel?1:.55}" stroke-linejoin="round" points="${pts}"/>`;
+  }
+  s+=`<g id="hover" style="display:none"><line id="hLine" y1="${T}" y2="${H-B}" stroke="${col('--muted')}" stroke-dasharray="3 3"/>`;
+  for(const k of ['grace','balloon','spitzer']) s+=`<circle id="hc-${k}" r="4.5" fill="${col('--panel')}" stroke="${col(colors[k])}" stroke-width="2.5"/>`;
+  s+=`</g>`;
+  svg.innerHTML=s;
+  chartState={series,n,X,Y};
+}
+function valueAt(pts,m,preferPre){
+  let v=pts[0].v;
+  for(const p of pts){ if(p.m>m) break; if(p.m===m && p.post && preferPre) continue; v=p.v; }
+  return v;
+}
+function onHover(e){
+  if(!chartState) return;
+  const svg=$('chart'), r=svg.getBoundingClientRect(), {W,L,R}=CH, {series,n,X,Y}=chartState;
+  const vx=(e.clientX-r.left)/r.width*W;
+  const m=Math.max(0,Math.min(n,Math.round((vx-L)/(W-L-R)*n)));
+  $('hover').style.display=''; $('hLine').setAttribute('x1',X(m)); $('hLine').setAttribute('x2',X(m));
+  const pre = chartMode==='balance' && m===n;
+  let html=`<b>${m===0?'תחילת ההלוואה':`חודש ${m} (שנה ${fmt(m/12,1)})`}</b>`;
+  for(const k of ['grace','balloon','spitzer']){
+    const v=valueAt(series[k],m,pre); const c=$('hc-'+k);
+    c.setAttribute('cx',X(m)); c.setAttribute('cy',Y(v));
+    html+=`<div><i style="--c:var(--c-${k})">${TYPES[k].name}</i><span>${ils(v)}</span></div>`;
+  }
+  if(pre) html+=`<div style="color:var(--muted);margin-top:4px">לפני התשלום האחרון</div>`;
+  const tip=$('tip'); tip.innerHTML=html; tip.style.display='block';
+  const box=$('chartBox').getBoundingClientRect(), px=e.clientX-box.left;
+  const tw=tip.offsetWidth; let left=px+14; if(left+tw>box.width) left=px-tw-14; tip.style.left=Math.max(0,left)+'px';
+}
+function hideHover(){ $('tip').style.display='none'; const h=$('hover'); if(h) h.style.display='none'; }
+$('chart').addEventListener('pointermove',onHover);
+$('chart').addEventListener('pointerdown',onHover);
+$('chart').addEventListener('pointerleave',hideHover);
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{
+  chartMode=b.dataset.mode; document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b)); calc(); }));
+
+function drawTable(rows, n){
+  $('tableTag').textContent = 'מסלול '+TYPES[selected].name;
+  const tb=$('tbody'); tb.innerHTML='';
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="5">הזינו תקופה גדולה מאפס כדי לראות לוח סילוקין.</td></tr>'; return; }
+  let tot={pay:0,int:0,prin:0};
+  for(let y=0;y*12<n;y++){
+    const slice=rows.slice(y*12,(y+1)*12);
+    const pay=slice.reduce((s,x)=>s+x.pay,0);
+    const prin=slice.reduce((s,x)=>s+x.principal,0);
+    const intr = selected==='balloon' ? slice.reduce((s,x)=>s+x.accrued,0) : slice.reduce((s,x)=>s+x.interest,0);
+    tot.pay+=pay; tot.int+=intr; tot.prin+=prin;
+    const bal=slice[slice.length-1].bal;
+    tb.insertAdjacentHTML('beforeend',`<tr><td>${y+1}</td><td>${ils(pay)}</td><td>${ils(intr)}${selected==='balloon'&&(y+1)*12<n?' (נצברת)':''}</td><td>${ils(prin)}</td><td>${ils(bal)}</td></tr>`);
+  }
+  tb.insertAdjacentHTML('beforeend',`<tr><td>סה״כ</td><td>${ils(tot.pay)}</td><td>${ils(tot.int)}</td><td>${ils(tot.prin)}</td><td>—</td></tr>`);
+}
+
+// sync leverage % ↔ loan amount
+const MAX_PCT = 80;
+function fromPct(){ const E=num($('equity')); let p=num($('pct'));
+  if(p>MAX_PCT){ p=MAX_PCT; $('pct').value=MAX_PCT; } if(p<0){ p=0; $('pct').value=0; }
+  $('loan').value=fmt(Math.round(E*p/100)); $('pctRange').value=p; calc(); }
+function fromLoan(){ const E=num($('equity')); let L=num($('loan'));
+  const cap=E*MAX_PCT/100; if(L>cap){ L=cap; $('loan').value=fmt(Math.round(cap)); }
+  const p=E>0?L/E*100:0; $('pct').value=fmt(p,1).replace(/[,\s]/g,''); $('pctRange').value=p; calc(); }
+$('pct').addEventListener('input',fromPct);
+$('pctRange').addEventListener('input',e=>{$('pct').value=e.target.value;fromPct();});
+$('loan').addEventListener('input',fromLoan);
+$('equity').addEventListener('input',fromPct);
+['years','prime','spread','ret','fee','dep'].forEach(id=>$(id).addEventListener('input',calc));
+['equity','loan','dep'].forEach(id=>$(id).addEventListener('blur',e=>withCommas(e.target)));
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',calc);
+calc();
+</script>
+</body>
+</html>

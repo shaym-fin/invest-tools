@@ -4,19 +4,19 @@
 <meta charset="UTF-8">
 <script>(function(){var t=null;try{t=localStorage.getItem('theme')}catch(e){}document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light')})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="סימולציה של מינוף הון עצמי: השוואת גרייס, בלון ושפיצר, תשואה צפויה ורווח נטו.">
+<meta name="description" content="סימולציה של הלוואה על בסיס הון עצמי: השוואת גרייס, בלון ושפיצר, תשואה צפויה ורווח נטו.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="he_IL">
 <meta property="og:site_name" content="הדרים סוכנות לביטוח">
-<meta property="og:title" content="סימולטור מינוף | הדרים סוכנות לביטוח">
-<meta property="og:description" content="סימולציה של מינוף הון עצמי: השוואת גרייס, בלון ושפיצר, תשואה צפויה ורווח נטו.">
+<meta property="og:title" content="סימולטור הלוואות | הדרים סוכנות לביטוח">
+<meta property="og:description" content="סימולציה של הלוואה על בסיס הון עצמי: השוואת גרייס, בלון ושפיצר, תשואה צפויה ורווח נטו.">
 <meta property="og:url" content="https://shaym-fin.github.io/invest-tools/leverage.html">
 <meta property="og:image" content="https://shaym-fin.github.io/invest-tools/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#23262C">
-<title>סימולטור מינוף</title>
+<title>סימולטור הלוואות | הדרים</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
@@ -230,8 +230,8 @@ tbody tr:last-child td{font-weight:700}
 <div class="wrap">
   <header>
     <div>
-      <h1>סימולטור מינוף</h1>
-      <p>הזינו את הסכום הצבור, בחרו כמה למנף ואת תנאי ההלוואה, והשוו בין גרייס, בלון ושפיצר.</p>
+      <h1>סימולטור הלוואות</h1>
+      <p>הזינו את הסכום הצבור, בחרו את סכום ההלוואה ותנאיה, והשוו בין גרייס, בלון ושפיצר.</p>
     </div>
     <div class="export" aria-label="הורדת דוח">
       <span>הורדת דוח:</span>
@@ -258,7 +258,7 @@ tbody tr:last-child td{font-weight:700}
       <div class="field">
         <label>קביעת סכום ההלוואה לפי</label>
         <div class="modeseg" id="modeSeg" role="group" aria-label="שיטת קביעת ההלוואה">
-          <button type="button" data-m="pct" aria-pressed="true">אחוז מינוף</button>
+          <button type="button" data-m="pct" aria-pressed="true">אחוז הלוואה</button>
           <button type="button" data-m="pmt" aria-pressed="false">תשלום חודשי</button>
         </div>
       </div>
@@ -278,14 +278,14 @@ tbody tr:last-child td{font-weight:700}
       </div>
 
       <div class="field">
-        <label for="pct">אחוז מינוף מהסכום הצבור</label>
+        <label for="pct">אחוז הלוואה מהסכום הצבור</label>
         <div class="inp"><input id="pct" inputmode="decimal" value="80"><span class="unit">%</span></div>
-        <input type="range" id="pctRange" min="0" max="80" step="1" value="80" aria-label="אחוז מינוף">
+        <input type="range" id="pctRange" min="0" max="80" step="1" value="80" aria-label="אחוז הלוואה">
         <div class="hint">עד 80% מהסכום הצבור.</div>
       </div>
 
       <div class="field">
-        <label for="loan">סכום למינוף (ההלוואה)</label>
+        <label for="loan">סכום ההלוואה</label>
         <div class="inp"><input id="loan" inputmode="numeric" value="400,000"><span class="unit">₪</span></div>
         <div class="hint">אפשר לשנות את האחוז או את הסכום, והשני יתעדכן. הסכום מוגבל ל־80% מהסכום הצבור.</div>
       </div>
@@ -364,7 +364,7 @@ tbody tr:last-child td{font-weight:700}
           <div class="eq" id="barEq"></div>
           <div class="dt" id="barDt"></div>
         </div>
-        <div class="legend"><span class="l-eq">הון עצמי</span><span class="l-dt">מינוף (הלוואה)</span></div>
+        <div class="legend"><span class="l-eq">הון עצמי</span><span class="l-dt">הלוואה</span></div>
         <div class="kpis">
           <div class="kpi"><div class="v" id="kLoan"></div><div class="k">סכום ההלוואה</div></div>
           <div class="kpi"><div class="v" id="kMult"></div><div class="k">מכפיל הון</div></div>
@@ -383,7 +383,7 @@ tbody tr:last-child td{font-weight:700}
         </div>
         <div class="ystats">
           <div class="ystat"><div class="k">תשואה על ההון העצמי</div><div class="v" id="yEq"></div><div class="s" id="yEqS"></div></div>
-          <div class="ystat"><div class="k">תשואה על הקרן הממונפת</div><div class="v" id="yLev"></div><div class="s" id="yLevS"></div></div>
+          <div class="ystat"><div class="k">תשואה על סכום ההלוואה</div><div class="v" id="yLev"></div><div class="s" id="yLevS"></div></div>
           <div class="ystat"><div class="k">דמי ניהול בתקופה</div><div class="v" id="yFee"></div><div class="s" id="yFeeS"></div></div>
         </div>
         <div class="table-box">
@@ -392,7 +392,7 @@ tbody tr:last-child td{font-weight:700}
             <tbody id="yBody"></tbody>
           </table>
         </div>
-        <p class="note">הסכומים אחרי דמי ניהול. הרווח נטו מהמינוף הוא התשואה על הקרן הממונפת פחות הריבית ששולמה בתקופה. הרווח המשוקלל הוא התשואה על ההון העצמי ועוד הרווח נטו מהמינוף. לא כולל מס.</p>
+        <p class="note">הסכומים אחרי דמי ניהול. הרווח נטו מההלוואה הוא התשואה על סכום ההלוואה פחות הריבית ששולמה בתקופה. הרווח המשוקלל הוא התשואה על ההון העצמי ועוד הרווח נטו מההלוואה. לא כולל מס.</p>
       </section>
 
       <section class="panel" aria-label="גרף ההלוואה לאורך זמן">
@@ -548,14 +548,14 @@ function drawYield(y, d){
     return pct(Math.pow(1+(lo+hi)/2,12)-1);
   };
   $('yBody').innerHTML =
-    row('תשואה על הקרן הממונפת', ()=>ils(d.levProfit)) +
+    row('תשואה על סכום ההלוואה', ()=>ils(d.levProfit)) +
     row('ריבית בתקופה', k=>'−'+ils(y[k].totalInt)) +
-    row('רווח נטו מהמינוף', k=>`<span class="${cls(y[k].levNet)}">${ils(y[k].levNet)}</span>`) +
+    row('רווח נטו מההלוואה', k=>`<span class="${cls(y[k].levNet)}">${ils(y[k].levNet)}</span>`) +
     (d.D>0 ? row('תשואה על הסכום הצבור', ()=>ils(d.eqProfit-d.depProfit)) + row('תשואה על ההפקדות החודשיות', ()=>ils(d.depProfit)) : '') +
     row('תשואה על ההון העצמי', ()=>ils(d.eqProfit)) +
     row('סה״כ רווח משוקלל', k=>`<span class="${cls(y[k].total)}">${ils(y[k].total)}</span><span class="sm">${d.ownCap>0?pct(y[k].total/d.ownCap)+' על ההון העצמי':''}</span>`, ' class="sum"') +
     row('תשואה שנתית ממוצעת על ההון', k=>annual(y[k].total)) +
-    row('תרומת המינוף מול השקעה ללא הלוואה', k=>`<span class="${cls(y[k].levNet)}">${d.eqProfit? (y[k].levNet>=0?'+':'')+fmt(y[k].levNet/Math.abs(d.eqProfit)*100,0)+'%' : '—'}</span>`);
+    row('תרומת ההלוואה מול השקעה בלי הלוואה', k=>`<span class="${cls(y[k].levNet)}">${d.eqProfit? (y[k].levNet>=0?'+':'')+fmt(y[k].levNet/Math.abs(d.eqProfit)*100,0)+'%' : '—'}</span>`);
 }
 
 let chartMode='balance', chartState=null;
@@ -847,7 +847,7 @@ const today=()=>new Date().toLocaleDateString('he-IL');
 function reportModel(){
   const L=LAST, h=histInfo();
   const inputs=[
-    ['סכום צבור (הון עצמי)',L.E,'c'],['הפקדה חודשית',L.D,'c'],['אחוז מינוף',L.pct/100,'p'],['סכום ההלוואה',L.P,'c'],
+    ['סכום צבור (הון עצמי)',L.E,'c'],['הפקדה חודשית',L.D,'c'],['אחוז הלוואה מהסכום הצבור',L.pct/100,'p'],['סכום ההלוואה',L.P,'c'],
     ['תקופת ההלוואה (שנים)',L.years,'n'],['ריבית פריים',L.prime/100,'p'],['פער מהפריים',L.spread/100,'p'],
     ['ריבית שנתית',L.annual/100,'p'],['תשואה שנתית צפויה',L.ret,'p'],['דמי ניהול שנתיים',L.fee,'p'],
   ];
@@ -863,9 +863,9 @@ function reportModel(){
     ['סך ריבית',KEYS.map(k=>t[k].totalInt),'c'],['סך החזר',KEYS.map(k=>t[k].totalPaid),'c'],
   ];
   const yieldRows=[
-    ['תשואה על הקרן הממונפת',KEYS.map(()=>L.levProfit),'c'],
+    ['תשואה על סכום ההלוואה',KEYS.map(()=>L.levProfit),'c'],
     ['ריבית בתקופה',KEYS.map(k=>-t[k].totalInt),'c'],
-    ['רווח נטו מהמינוף',KEYS.map(k=>t[k].levNet),'c',true],
+    ['רווח נטו מההלוואה',KEYS.map(k=>t[k].levNet),'c',true],
   ];
   if(L.D>0){ yieldRows.push(['תשואה על הסכום הצבור',KEYS.map(()=>L.eqProfit-L.depProfit),'c']); yieldRows.push(['תשואה על ההפקדות החודשיות',KEYS.map(()=>L.depProfit),'c']); }
   yieldRows.push(
@@ -910,7 +910,7 @@ function buildReportHTML(){
   const chart=$('chart').outerHTML.replace('id="chart"','').replace(/<g id="hover"[\s\S]*?<\/g>/,'');
   if(prevTheme==null) root.removeAttribute('data-theme'); else root.setAttribute('data-theme',prevTheme);
   calc();
-  return `<div class="rhead"><img src="logo-mark.png" alt="" onerror="this.remove()"><div><h1>דוח סימולציית מינוף</h1>
+  return `<div class="rhead"><img src="logo-mark.png" alt="" onerror="this.remove()"><div><h1>דוח סימולציית הלוואות</h1>
     <div class="sub">הופק ב־${today()} · שי הדרים סוכנות לביטוח פנסיוני</div></div></div>
     <h2>נתוני הסימולציה</h2>${kv(m.inputs)}
     <h2>מבנה ההון</h2>${kv(m.structure)}
@@ -924,7 +924,7 @@ function buildReportHTML(){
 function exportPdf(){
   if(!LAST) return;
   $('report').innerHTML=buildReportHTML();
-  const old=document.title; document.title=`דוח מינוף ${today().replace(/\./g,'-')}`;
+  const old=document.title; document.title=`דוח הלוואות ${today().replace(/\./g,'-')}`;
   const done=()=>{ document.title=old; $('report').innerHTML=''; window.removeEventListener('afterprint',done); };
   window.addEventListener('afterprint',done);
   const imgs=[...$('report').querySelectorAll('img')].filter(i=>!i.complete);
@@ -952,7 +952,7 @@ async function exportXlsx(){
   try{ await loadXLSX(); }
   catch(e){ alert('לא הצלחתי לטעון את רכיב האקסל. בדקו את החיבור לאינטרנט ונסו שוב.'); btn.disabled=false; btn.textContent='Excel'; return; }
   const m=reportModel(), L=LAST, cell=(v,t)=>t==='t'?v:{v:(v==null||!isFinite(v))?'—':v,z:ZF[t]};
-  const sum=[['דוח סימולציית מינוף'],['שי הדרים סוכנות לביטוח פנסיוני'],[`הופק ב־${today()}`],[],['נתוני הסימולציה']];
+  const sum=[['דוח סימולציית הלוואות'],['שי הדרים סוכנות לביטוח פנסיוני'],[`הופק ב־${today()}`],[],['נתוני הסימולציה']];
   m.inputs.forEach(([k,v,t])=>sum.push([k,cell(v,t)]));
   sum.push([],['מבנה ההון']); m.structure.forEach(([k,v,t])=>sum.push([k,cell(v,t)]));
   sum.push([],['השוואת מסלולי החזר',...KEYS.map(k=>TYPES[k].name)]);
@@ -970,7 +970,7 @@ async function exportXlsx(){
     XLSX.utils.book_append_sheet(wb,sheetFrom(rows,[10,16,16,16,18]),TYPES[k].name);
   }
   wb.Workbook={Views:[{RTL:true}]};
-  XLSX.writeFile(wb,`דוח-מינוף-${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.writeFile(wb,`דוח-הלוואות-${new Date().toISOString().slice(0,10)}.xlsx`);
   btn.disabled=false; btn.textContent='Excel';
 }
 $('btnXlsx').addEventListener('click',exportXlsx);

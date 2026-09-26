@@ -55,7 +55,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans H
 .topnav .tabs a .ic{font-size:1.05rem}
 .topnav .theme{white-space:nowrap;margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid rgba(250,246,228,.3);background:transparent;color:#FAF6E4;padding:5px 12px;border-radius:20px;cursor:pointer}
 .topnav .theme:hover{border-color:#F2A900}
-@media (max-width:520px){ .topnav .theme .tl{display:none} .topnav .theme{padding:6px 10px;font-size:1rem} .topnav .brand img{height:42px} .topnav .tabs a{flex:1;justify-content:center;padding:9px 10px;font-size:.95rem} }
+@media (max-width:520px){ .topnav .brand .bt{font-size:1.02rem} .topnav .brand{gap:10px} .topnav .theme .tl{display:none} .topnav .theme{padding:6px 10px;font-size:1rem} .topnav .brand img{height:42px} .topnav .tabs a{flex:1;justify-content:center;padding:9px 8px;font-size:.9rem;white-space:nowrap;gap:6px} }
 .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px}
 h1{font-size:clamp(1.6rem,3vw,2.2rem);margin:0 0 4px;letter-spacing:-.01em}
 .lede{margin:0 0 20px;color:var(--muted);max-width:65ch}
@@ -156,12 +156,12 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
 <nav class="topnav" aria-label="ניווט ראשי">
   <div class="in">
     <div class="toprow">
-      <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">תשואות ותכנון הלוואות חכמות</span></span>
+      <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">השוואות תשואות ותכנון הלוואות חכמות</span></span>
       <button type="button" class="theme" id="themeBtn"></button>
     </div>
     <div class="tabs">
       <a href="index.html" aria-current="page"><span class="ic" aria-hidden="true">📊</span>השוואת תשואות</a>
-      <a href="leverage.html" ><span class="ic" aria-hidden="true">📈</span>סימולטור מינוף</a>
+      <a href="leverage.html" ><span class="ic" aria-hidden="true">📈</span>סימולטור הלוואות</a>
     </div>
   </div>
 </nav>

@@ -122,6 +122,8 @@ input[readonly]{opacity:.75;cursor:not-allowed}
 .pmtbox select{width:100%;font:inherit;font-size:.95rem;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink)}
 .pmtres{font-size:.86rem;font-variant-numeric:tabular-nums}
 .pmtres .warn{color:var(--neg)}
+.primenote{font-size:.78rem;color:var(--muted);margin-top:6px;line-height:1.45}
+.primenote button{font:inherit;font-size:.78rem;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .rate-sum{background:var(--soft);border-radius:9px;padding:10px 12px;font-size:.9rem;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .rate-sum b{font-variant-numeric:tabular-nums}
@@ -298,7 +300,7 @@ tbody tr:last-child td{font-weight:700}
       <div class="pair">
         <div class="field">
           <label for="prime">ריבית פריים</label>
-          <div class="inp"><input id="prime" inputmode="decimal" value="6"><span class="unit">%</span></div>
+          <div class="inp"><input id="prime" inputmode="decimal" value="4.75"><span class="unit">%</span></div>
         </div>
         <div class="field">
           <label for="spread">פער מהפריים</label>
@@ -310,6 +312,7 @@ tbody tr:last-child td{font-weight:700}
         <span>שנתית: <b id="annualRate"></b></span>
         <span>חודשית: <b id="monthlyRate"></b></span>
       </div>
+      <div class="primenote" id="primeNote" aria-live="polite"></div>
 
       <hr>
 
@@ -709,7 +712,7 @@ $('pmt').addEventListener('blur',e=>withCommas(e.target));
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',calc);
 
 // ---------- keep the simulator's state between pages / visits ----------
-const SAVE_IDS=['equity','dep','pct','loan','years','prime','spread','ret','fee','pmt','pmtType'];
+const SAVE_IDS=['equity','dep','pct','loan','years','spread','ret','fee','pmt','pmtType'];
 function saveLev(){ try{ localStorage.setItem('lev-state',JSON.stringify({v:Object.fromEntries(SAVE_IDS.map(id=>[id,$(id).value])),selected,chartMode,mode:MODE})); }catch(e){} }
 (function restoreLev(){
   let st=null; try{ st=JSON.parse(localStorage.getItem('lev-state')||'null'); }catch(e){}
@@ -723,6 +726,25 @@ function saveLev(){ try{ localStorage.setItem('lev-state',JSON.stringify({v:Obje
 })();
 const _calc=calc; calc=function(){ _calc(); saveLev(); };
 setMode(MODE);
+
+
+// ---------- current prime rate (updated automatically from the Bank of Israel) ----------
+let PRIME=null;
+function recalcAll(){ if(MODE==='pmt') applyPmt(); else calc(); }
+function paintPrimeNote(){
+  if(!PRIME){ $('primeNote').textContent=''; return; }
+  const d=PRIME.changed?PRIME.changed.split('-').reverse().join('/'):'';
+  const differs=Math.abs(num($('prime'))-PRIME.prime)>1e-9;
+  $('primeNote').innerHTML=`ריבית הפריים העדכנית: <b>${fmt(PRIME.prime,2)}%</b> (ריבית בנק ישראל ${fmt(PRIME.boi,2)}% + 1.5%)${d?`, עודכנה ב־${d}`:''}.`
+    +(differs?` <button type="button" id="primeReset">חזרה לפריים העדכני</button>`:'');
+  const b=document.getElementById('primeReset');
+  if(b) b.addEventListener('click',()=>{ $('prime').value=PRIME.prime; paintPrimeNote(); recalcAll(); });
+}
+$('prime').addEventListener('input',paintPrimeNote);
+fetch('data/prime.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(d=>{
+  if(!d||!isFinite(d.prime)) return;
+  PRIME=d; $('prime').value=d.prime; paintPrimeNote(); recalcAll();
+}).catch(()=>{});
 
 // ---------- historical return from the returns comparison data ----------
 const H = {idx:null, data:{}, prod:null, fund:null, from:null, to:null};

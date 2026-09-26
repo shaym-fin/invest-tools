@@ -2,6 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<script>(function(){var t=null;try{t=localStorage.getItem('theme')}catch(e){}document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light')})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>השוואת תשואות חיסכון פנסיוני</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
@@ -33,6 +34,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans H
 .topnav .brand{font-weight:700}
 .topnav a{color:var(--muted);text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
 .topnav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+.topnav .theme{margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:5px 12px;border-radius:20px;cursor:pointer}
+.topnav .theme:hover{border-color:var(--muted)}
 .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px}
 h1{font-size:clamp(1.6rem,3vw,2.2rem);margin:0 0 4px;letter-spacing:-.01em}
 .lede{margin:0 0 20px;color:var(--muted);max-width:65ch}
@@ -90,6 +93,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
     <span class="brand">תשואות ומינוף</span>
     <a href="index.html" aria-current="page">השוואת תשואות</a>
     <a href="leverage.html">סימולטור מינוף</a>
+    <button type="button" class="theme" id="themeBtn"></button>
   </div>
 </nav>
 
@@ -410,6 +414,17 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()
   const p=avail.includes(state.p)?state.p:avail[0];
   await setProduct(p,true);
 })();
+
+// ---------- light / dark toggle ----------
+function paintThemeBtn(){ const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  const b=document.getElementById('themeBtn'); b.textContent=dark?'☀️ מצב בהיר':'🌙 מצב כהה'; b.setAttribute('aria-label',dark?'מעבר למצב בהיר':'מעבר למצב כהה'); }
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{ localStorage.setItem('theme',next); }catch(e){}
+  paintThemeBtn(); D&&renderChart();
+});
+paintThemeBtn();
 </script>
 </body>
 </html>

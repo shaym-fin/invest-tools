@@ -46,7 +46,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans H
 .topnav .toprow{display:flex;align-items:center;gap:14px}
 .topnav .brand{display:inline-flex;align-items:center;gap:14px;color:#FAF6E4}
 .topnav .brand img{height:52px;width:auto;display:block}
-.topnav .brand .bt{font-size:clamp(1.45rem,3.4vw,2.1rem);font-weight:700;color:#F2C14E;letter-spacing:-.01em;line-height:1.1}
+.topnav .brand .bt{font-size:clamp(1.2rem,3.2vw,2rem);font-weight:700;color:#F2C14E;letter-spacing:-.01em;line-height:1.1}
 .topnav .tabs{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
 .topnav .tabs a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:1rem;font-weight:500;color:#FAF6E4;
   padding:9px 18px;border-radius:10px;border:1px solid rgba(250,246,228,.35);background:rgba(255,255,255,.06);transition:background .15s,border-color .15s}
@@ -112,9 +112,13 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
 .ms-pop[hidden]{display:none}
 .ms-actions{display:flex;gap:6px;padding:8px;border-bottom:1px solid var(--line)}
 .ms-actions button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:transparent;color:var(--ink);padding:4px 10px;border-radius:14px;cursor:pointer}
+.ms-search{padding:8px 8px 0}
+.ms-search input{width:100%;min-width:0;font:inherit;font-size:.9rem;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.ms-empty{padding:10px 8px;font-size:.85rem;color:var(--muted)}
 .ms-list{max-height:260px;overflow-y:auto;padding:6px}
 .ms-list label{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:6px;font-size:.9rem;cursor:pointer;color:var(--ink);margin:0}
 .ms-list label:hover{background:var(--soft)}
+.ms-list label[hidden]{display:none}
 .chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .pdfbtn{font:inherit;font-size:.88rem;font-weight:500;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 14px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .pdfbtn::before{content:"";width:10px;height:10px;border-radius:2px;background:#B4472F}
@@ -152,7 +156,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
 <nav class="topnav" aria-label="ניווט ראשי">
   <div class="in">
     <div class="toprow">
-      <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">תשואות ומינוף</span></span>
+      <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">תשואות ותכנון הלוואות חכמות</span></span>
       <button type="button" class="theme" id="themeBtn"></button>
     </div>
     <div class="tabs">
@@ -211,6 +215,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
         <div class="ms" id="companyMs">
           <button type="button" class="ms-btn" id="msBtn" aria-haspopup="true" aria-expanded="false"><span id="msLabel">כל החברות</span></button>
           <div class="ms-pop" id="msPop" hidden>
+            <div class="ms-search"><input type="search" id="msSearch" placeholder="חיפוש חברה…" aria-label="חיפוש חברה מנהלת" autocomplete="off"></div>
             <div class="ms-actions"><button type="button" data-a="all">בחר הכל</button><button type="button" data-a="none">נקה בחירה</button></div>
             <div class="ms-list" id="msList"></div>
           </div>
@@ -472,14 +477,25 @@ $('quick').addEventListener('click',e=>{ const b=e.target.closest('button[data-q
   else state.from=D.periods[Math.max(0,last-(+b.dataset.q)+1)];
   $('from').value=state.from; $('to').value=state.to; renderAll(); });
 let qt; $('q').addEventListener('input',e=>{ clearTimeout(qt); qt=setTimeout(()=>{ state.q=e.target.value; state.show=50; renderTable(); },150); });
-$('msBtn').addEventListener('click',e=>{ e.stopPropagation(); const open=$('msPop').hidden; $('msPop').hidden=!open; $('msBtn').setAttribute('aria-expanded',open); });
+$('msBtn').addEventListener('click',e=>{ e.stopPropagation(); const open=$('msPop').hidden; $('msPop').hidden=!open; $('msBtn').setAttribute('aria-expanded',open);
+  if(open){ $('msSearch').value=''; msFilter(); setTimeout(()=>$('msSearch').focus(),0); } });
 $('msPop').addEventListener('click',e=>e.stopPropagation());
 document.addEventListener('click',()=>{ if(!$('msPop').hidden){ $('msPop').hidden=true; $('msBtn').setAttribute('aria-expanded','false'); } });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('msPop').hidden){ $('msPop').hidden=true; $('msBtn').focus(); } });
 $('msList').addEventListener('change',()=>{ state.companies=[...$('msList').querySelectorAll('input:checked')].map(i=>i.value); msLabel(); state.show=50; renderTable(); });
+function msFilter(){
+  const q=$('msSearch').value.trim().toLowerCase(); let shown=0;
+  $('msList').querySelectorAll('label').forEach(l=>{ const on=!q||l.textContent.toLowerCase().includes(q); l.hidden=!on; if(on) shown++; });
+  let em=$('msList').querySelector('.ms-empty');
+  if(!shown){ if(!em){ em=document.createElement('div'); em.className='ms-empty'; $('msList').appendChild(em); } em.textContent='לא נמצאה חברה בשם הזה'; }
+  else if(em) em.remove();
+}
+$('msSearch').addEventListener('input',msFilter);
+$('msSearch').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); const vis=[...$('msList').querySelectorAll('label:not([hidden]) input')]; if(vis.length===1){ vis[0].checked=!vis[0].checked; vis[0].dispatchEvent(new Event('change',{bubbles:true})); } } });
 $('msPop').querySelector('.ms-actions').addEventListener('click',e=>{ const b=e.target.closest('button[data-a]'); if(!b) return;
-  $('msList').querySelectorAll('input').forEach(i=>i.checked=b.dataset.a==='all');
-  state.companies=b.dataset.a==='all'?[...D.companies]:[]; msLabel(); state.show=50; renderTable(); });
+  // "select all" / "clear" act on the companies currently visible in the (possibly filtered) list
+  $('msList').querySelectorAll('label:not([hidden]) input').forEach(i=>i.checked=b.dataset.a==='all');
+  state.companies=[...$('msList').querySelectorAll('input:checked')].map(i=>i.value); msLabel(); state.show=50; renderTable(); });
 $('spec').addEventListener('change',e=>{ state.spec=e.target.value; state.show=50; renderTable(); });
 $('fullOnly').addEventListener('change',e=>{ state.full=e.target.checked; renderTable(); });
 $('thead').addEventListener('click',e=>{ const b=e.target.closest('button[data-sort]'); if(!b) return;

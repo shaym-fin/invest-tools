@@ -609,6 +609,20 @@ $('equity').addEventListener('input',fromPct);
 ['years','prime','spread','ret','fee','dep'].forEach(id=>$(id).addEventListener('input',calc));
 ['equity','loan','dep'].forEach(id=>$(id).addEventListener('blur',e=>withCommas(e.target)));
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',calc);
+
+// ---------- keep the simulator's state between pages / visits ----------
+const SAVE_IDS=['equity','dep','pct','loan','years','prime','spread','ret','fee'];
+function saveLev(){ try{ localStorage.setItem('lev-state',JSON.stringify({v:Object.fromEntries(SAVE_IDS.map(id=>[id,$(id).value])),selected,chartMode})); }catch(e){} }
+(function restoreLev(){
+  let st=null; try{ st=JSON.parse(localStorage.getItem('lev-state')||'null'); }catch(e){}
+  if(!st) return;
+  SAVE_IDS.forEach(id=>{ if(st.v&&st.v[id]!=null) $(id).value=st.v[id]; });
+  $('pctRange').value=num($('pct'));
+  if(TYPES[st.selected]) selected=st.selected;
+  if(st.chartMode==='balance'||st.chartMode==='cum'){ chartMode=st.chartMode;
+    document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode===chartMode)); }
+})();
+const _calc=calc; calc=function(){ _calc(); saveLev(); };
 calc();
 
 // ---------- historical return from the returns comparison data ----------

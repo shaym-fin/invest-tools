@@ -166,7 +166,19 @@ const plab=p=>`${String(p%100).padStart(2,'0')}/${Math.floor(p/100)}`;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 // ---------- URL state ----------
+function saveState(){
+  try{ localStorage.setItem('ret-state',JSON.stringify({p:state.p,from:state.from,to:state.to,sel:state.sel,q:state.q,
+    company:state.company,spec:state.spec,full:state.full,sort:state.sort})); }catch(e){}
+}
+function readSaved(){
+  let st=null; try{ st=JSON.parse(localStorage.getItem('ret-state')||'null'); }catch(e){}
+  if(!st) return;
+  ['p','from','to','q','company','spec','full','sort'].forEach(k=>{ if(st[k]!=null) state[k]=st[k]; });
+  if(Array.isArray(st.sel)) state.sel=st.sel.slice(0,MAX_SEL);
+  $('q').value=state.q; $('fullOnly').checked=state.full;
+}
 function readHash(){
+  if(!location.hash.slice(1)){ readSaved(); return; }
   const h=new URLSearchParams(location.hash.slice(1));
   if(h.get('p')) state.p=h.get('p');
   if(h.get('f')) state.from=+h.get('f');
@@ -177,6 +189,7 @@ function writeHash(){
   const h=new URLSearchParams({p:state.p,f:state.from,t:state.to});
   if(state.sel.length) h.set('s',state.sel.join(','));
   history.replaceState(null,'','#'+h.toString());
+  saveState();
 }
 
 // ---------- data ----------
@@ -222,6 +235,8 @@ function fillPeriods(){
   $('from').value=state.from; $('to').value=state.to;
 }
 function fillFilters(){
+  if(state.company&&!D.companies.includes(state.company)) state.company='';
+  if(state.spec&&!D.specs.includes(state.spec)) state.spec='';
   $('company').innerHTML='<option value="">כל החברות</option>'+D.companies.map(c=>`<option>${esc(c)}</option>`).join('');
   $('spec').innerHTML='<option value="">כל ההתמחויות</option>'+D.specs.map(c=>`<option>${esc(c)}</option>`).join('');
   $('company').value=state.company; $('spec').value=state.spec;
@@ -265,6 +280,7 @@ function renderTable(){
       <td>${r.f.assets==null?'<span class="na">—</span>':fmtN(r.f.assets,0)}</td>
     </tr>`;}).join(''):`<tr><td colspan="${COLS.length}" class="empty">אין מסלולים שמתאימים לסינון. נסו לנקות את החיפוש או לבטל את הסימון "רק מסלולים עם נתונים לכל התקופה".</td></tr>`;
   $('moreBox').innerHTML=rows.length>state.show?`<button type="button" class="more" id="moreBtn">הצג עוד ${Math.min(50,rows.length-state.show)} מתוך ${rows.length-state.show} נוספים</button>`:'';
+  saveState();
   $('meta').textContent=`${rows.length} מסלולים · ${plab(state.from)} עד ${plab(state.to)} (${ti-fi+1} חודשים) · עודכן ${INDEX.updated}`;
 }
 

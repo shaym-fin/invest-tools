@@ -102,7 +102,12 @@ def main():
             while True:
                 r = call("datastore_search", resource_id=rid, limit=PAGE, offset=offset)
                 if fmap is None:
-                    fmap = map_fields([f["id"] for f in r["fields"]])
+                    try:
+                        fmap = map_fields([f["id"] for f in r["fields"]])
+                    except RuntimeError:
+                        # טבלה שאינה טבלת תשואות (למשל מילון שדות) - מדלגים עליה
+                        print(f"  מדלג על {res.get('name', rid)}: אין בה נתוני תשואות")
+                        break
                     print(f"  {res.get('name', rid)}: {r.get('total')} שורות")
                 rows = r["records"]
                 for row in rows:

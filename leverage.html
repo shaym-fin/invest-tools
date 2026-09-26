@@ -113,6 +113,15 @@ input[type=range]{width:100%;accent-color:var(--debt);margin-top:8px}
 .hist .res b{font-size:1.05rem}
 .hist .warn{color:var(--c-balloon);font-size:.82rem}
 input[readonly]{opacity:.75;cursor:not-allowed}
+.modeseg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.modeseg button{flex:1;font:inherit;font-size:.88rem;border:0;background:transparent;color:var(--muted);padding:8px 10px;cursor:pointer}
+.modeseg button[aria-pressed="true"]{background:var(--soft);color:var(--ink);font-weight:600}
+.pmtbox{background:var(--soft);border-radius:10px;padding:12px;margin-bottom:16px}
+.pmtbox[hidden]{display:none}
+.pmtbox .field{margin-bottom:10px}
+.pmtbox select{width:100%;font:inherit;font-size:.95rem;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink)}
+.pmtres{font-size:.86rem;font-variant-numeric:tabular-nums}
+.pmtres .warn{color:var(--neg)}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .rate-sum{background:var(--soft);border-radius:9px;padding:10px 12px;font-size:.9rem;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .rate-sum b{font-variant-numeric:tabular-nums}
@@ -187,24 +196,33 @@ tbody tr:last-child td{font-weight:700}
 #yTable td .sm{display:block;font-size:.75rem;color:var(--muted);font-weight:400}
 .note{font-size:.8rem;color:var(--muted);margin-top:10px;max-width:75ch}
 .topnav{background:#23262C;border-bottom:3px solid #F2A900}
-.topnav .in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
-.topnav .brand{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:#FAF6E4}
-.topnav .brand img{height:44px;width:auto;display:block}
-.topnav .brand .bt{font-size:.95rem;color:#F2C14E}
-.topnav a{color:#CFC7B2;text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
-.topnav a:hover{color:#FAF6E4}
-.topnav a[aria-current="page"]{color:#FAF6E4;border-bottom-color:#F2A900}
-.topnav .theme{margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid rgba(250,246,228,.3);background:transparent;color:#FAF6E4;padding:5px 12px;border-radius:20px;cursor:pointer}
+.topnav .in{max-width:1180px;margin:0 auto;padding:12px 20px 14px}
+.topnav .toprow{display:flex;align-items:center;gap:14px}
+.topnav .brand{display:inline-flex;align-items:center;gap:14px;color:#FAF6E4}
+.topnav .brand img{height:52px;width:auto;display:block}
+.topnav .brand .bt{font-size:clamp(1.45rem,3.4vw,2.1rem);font-weight:700;color:#F2C14E;letter-spacing:-.01em;line-height:1.1}
+.topnav .tabs{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.topnav .tabs a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:1rem;font-weight:500;color:#FAF6E4;
+  padding:9px 18px;border-radius:10px;border:1px solid rgba(250,246,228,.35);background:rgba(255,255,255,.06);transition:background .15s,border-color .15s}
+.topnav .tabs a:hover{border-color:#F2A900;background:rgba(242,169,0,.12)}
+.topnav .tabs a[aria-current="page"]{background:#F2A900;border-color:#F2A900;color:#23262C;font-weight:700}
+.topnav .tabs a .ic{font-size:1.05rem}
+.topnav .theme{white-space:nowrap;margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid rgba(250,246,228,.3);background:transparent;color:#FAF6E4;padding:5px 12px;border-radius:20px;cursor:pointer}
 .topnav .theme:hover{border-color:#F2A900}
+@media (max-width:520px){ .topnav .theme .tl{display:none} .topnav .theme{padding:6px 10px;font-size:1rem} .topnav .brand img{height:42px} .topnav .tabs a{flex:1;justify-content:center;padding:9px 10px;font-size:.95rem} }
 </style>
 </head>
 <body>
 <nav class="topnav" aria-label="ניווט ראשי">
   <div class="in">
-    <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">תשואות ומינוף</span></span>
-    <a href="index.html">השוואת תשואות</a>
-    <a href="leverage.html" aria-current="page">סימולטור מינוף</a>
-    <button type="button" class="theme" id="themeBtn"></button>
+    <div class="toprow">
+      <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">תשואות ומינוף</span></span>
+      <button type="button" class="theme" id="themeBtn"></button>
+    </div>
+    <div class="tabs">
+      <a href="index.html" ><span class="ic" aria-hidden="true">📊</span>השוואת תשואות</a>
+      <a href="leverage.html" aria-current="page"><span class="ic" aria-hidden="true">📈</span>סימולטור מינוף</a>
+    </div>
   </div>
 </nav>
 <div class="wrap">
@@ -233,6 +251,28 @@ tbody tr:last-child td{font-weight:700}
         <label for="dep">הפקדה חודשית להון העצמי</label>
         <div class="inp"><input id="dep" inputmode="numeric" value="0"><span class="unit">₪</span></div>
         <div class="hint">מופקדת בסוף כל חודש לאורך תקופת ההלוואה ומושקעת באותה תשואה.</div>
+      </div>
+
+      <div class="field">
+        <label>קביעת סכום ההלוואה לפי</label>
+        <div class="modeseg" id="modeSeg" role="group" aria-label="שיטת קביעת ההלוואה">
+          <button type="button" data-m="pct" aria-pressed="true">אחוז מינוף</button>
+          <button type="button" data-m="pmt" aria-pressed="false">תשלום חודשי</button>
+        </div>
+      </div>
+      <div class="pmtbox" id="pmtBox" hidden>
+        <div class="field">
+          <label for="pmt">תשלום חודשי רצוי</label>
+          <div class="inp"><input id="pmt" inputmode="numeric" value="5,000"><span class="unit">₪</span></div>
+        </div>
+        <div class="field">
+          <label for="pmtType">מסלול החזר לחישוב</label>
+          <select id="pmtType">
+            <option value="spitzer">שפיצר (קרן + ריבית)</option>
+            <option value="grace">גרייס (ריבית בלבד)</option>
+          </select>
+        </div>
+        <div class="pmtres" id="pmtRes" aria-live="polite"></div>
       </div>
 
       <div class="field">
@@ -619,7 +659,7 @@ function drawTable(rows, n){
 
 // sync leverage % ↔ loan amount
 const MAX_PCT = 80;
-function fromPct(){ const E=num($('equity')); let p=num($('pct'));
+function fromPct(){ if(typeof MODE!=='undefined'&&MODE==='pmt') return; const E=num($('equity')); let p=num($('pct'));
   if(p>MAX_PCT){ p=MAX_PCT; $('pct').value=MAX_PCT; } if(p<0){ p=0; $('pct').value=0; }
   $('loan').value=fmt(Math.round(E*p/100)); $('pctRange').value=p; calc(); }
 function fromLoan(){ const E=num($('equity')); let L=num($('loan'));
@@ -630,12 +670,47 @@ $('pctRange').addEventListener('input',e=>{$('pct').value=e.target.value;fromPct
 $('loan').addEventListener('input',fromLoan);
 $('equity').addEventListener('input',fromPct);
 ['years','prime','spread','ret','fee','dep'].forEach(id=>$(id).addEventListener('input',calc));
+
+// ---------- reverse calculation: loan from a chosen monthly payment ----------
+let MODE='pct';
+function applyPmt(){
+  const E=num($('equity')), pay=Math.max(num($('pmt')),0), type=$('pmtType').value;
+  const years=Math.max(num($('years')),0), n=Math.round(years*12);
+  const r=(num($('prime'))+num($('spread')))/100/12;
+  let P;
+  if(type==='grace') P = r>0 ? pay/r : 0;
+  else P = n<=0 ? 0 : (Math.abs(r)<1e-12 ? pay*n : pay*(1-Math.pow(1+r,-n))/r);
+  const cap=E*MAX_PCT/100, capped=P>cap;
+  const used=Math.max(0,Math.min(P,cap));
+  $('loan').value=fmt(Math.round(used));
+  const p=E>0?used/E*100:0; $('pct').value=fmt(p,1).replace(/[,\s]/g,''); $('pctRange').value=p;
+  selected=type;
+  let html=`תשלום של <b>${ils(pay)}</b> בחודש ב${TYPES[type].name} מאפשר הלוואה של <b>${ils(P)}</b> (${E>0?fmt(P/E*100,1):'—'}% מההון העצמי).`;
+  if(type==='grace'&&r<=0) html='<span class="warn">בגרייס צריך ריבית גדולה מאפס כדי לחשב את סכום ההלוואה.</span>';
+  else if(capped){
+    const payAtCap = type==='grace' ? cap*r : (Math.abs(r)<1e-12 ? cap/n : cap*r/(1-Math.pow(1+r,-n)));
+    html+=`<br><span class="warn">זה מעל התקרה של ${MAX_PCT}% מההון, ולכן ההלוואה הוגבלה ל־${ils(cap)}. התשלום בפועל: ${ils(payAtCap)} בחודש.</span>`;
+  }
+  $('pmtRes').innerHTML=html;
+  calc();
+}
+function setMode(m){
+  MODE=m==='pmt'?'pmt':'pct';
+  document.querySelectorAll('#modeSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===MODE));
+  $('pmtBox').hidden=MODE!=='pmt';
+  ['pct','loan'].forEach(id=>$(id).readOnly=MODE==='pmt'); $('pctRange').disabled=MODE==='pmt';
+  if(MODE==='pmt') applyPmt(); else calc();
+}
+$('modeSeg').addEventListener('click',e=>{ const b=e.target.closest('button[data-m]'); if(b) setMode(b.dataset.m); });
+['pmt','years','prime','spread','equity'].forEach(id=>$(id).addEventListener('input',()=>{ if(MODE==='pmt') applyPmt(); }));
+$('pmtType').addEventListener('change',()=>{ if(MODE==='pmt') applyPmt(); });
+$('pmt').addEventListener('blur',e=>withCommas(e.target));
 ['equity','loan','dep'].forEach(id=>$(id).addEventListener('blur',e=>withCommas(e.target)));
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',calc);
 
 // ---------- keep the simulator's state between pages / visits ----------
-const SAVE_IDS=['equity','dep','pct','loan','years','prime','spread','ret','fee'];
-function saveLev(){ try{ localStorage.setItem('lev-state',JSON.stringify({v:Object.fromEntries(SAVE_IDS.map(id=>[id,$(id).value])),selected,chartMode})); }catch(e){} }
+const SAVE_IDS=['equity','dep','pct','loan','years','prime','spread','ret','fee','pmt','pmtType'];
+function saveLev(){ try{ localStorage.setItem('lev-state',JSON.stringify({v:Object.fromEntries(SAVE_IDS.map(id=>[id,$(id).value])),selected,chartMode,mode:MODE})); }catch(e){} }
 (function restoreLev(){
   let st=null; try{ st=JSON.parse(localStorage.getItem('lev-state')||'null'); }catch(e){}
   if(!st) return;
@@ -644,9 +719,10 @@ function saveLev(){ try{ localStorage.setItem('lev-state',JSON.stringify({v:Obje
   if(TYPES[st.selected]) selected=st.selected;
   if(st.chartMode==='balance'||st.chartMode==='cum'){ chartMode=st.chartMode;
     document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.mode===chartMode)); }
+  if(st.mode==='pmt') MODE='pmt';
 })();
 const _calc=calc; calc=function(){ _calc(); saveLev(); };
-calc();
+setMode(MODE);
 
 // ---------- historical return from the returns comparison data ----------
 const H = {idx:null, data:{}, prod:null, fund:null, from:null, to:null};
@@ -753,6 +829,7 @@ function reportModel(){
     ['תקופת ההלוואה (שנים)',L.years,'n'],['ריבית פריים',L.prime/100,'p'],['פער מהפריים',L.spread/100,'p'],
     ['ריבית שנתית',L.annual/100,'p'],['תשואה שנתית צפויה',L.ret,'p'],['דמי ניהול שנתיים',L.fee,'p'],
   ];
+  if(MODE==='pmt'){ inputs.splice(2,0,['קביעת ההלוואה','לפי תשלום חודשי ('+TYPES[$('pmtType').value].name+')','t'],['תשלום חודשי רצוי',num($('pmt')),'c']); }
   if(h) inputs.push(['מקור התשואה',h,'t']);
   const structure=[
     ['סך הכל להשקעה',L.T,'c'],['שיעור ההלוואה מסך ההשקעה',L.T>0?L.P/L.T:0,'p'],
@@ -881,7 +958,7 @@ $('btnPdf').addEventListener('click',exportPdf);
 
 // ---------- light / dark toggle ----------
 function paintThemeBtn(){ const dark=document.documentElement.getAttribute('data-theme')==='dark';
-  const b=document.getElementById('themeBtn'); b.textContent=dark?'☀️ מצב בהיר':'🌙 מצב כהה'; b.setAttribute('aria-label',dark?'מעבר למצב בהיר':'מעבר למצב כהה'); }
+  const b=document.getElementById('themeBtn'); b.innerHTML=dark?'☀️<span class="tl"> מצב בהיר</span>':'🌙<span class="tl"> מצב כהה</span>'; b.setAttribute('aria-label',dark?'מעבר למצב בהיר':'מעבר למצב כהה'); }
 document.getElementById('themeBtn').addEventListener('click',()=>{
   const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
   document.documentElement.setAttribute('data-theme',next);

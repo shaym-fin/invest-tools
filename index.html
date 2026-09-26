@@ -42,15 +42,20 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Hebrew","Arial Hebrew",Arial,sans-serif;font-size:16px;line-height:1.5}
 .topnav{background:#23262C;border-bottom:3px solid #F2A900}
-.topnav .in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
-.topnav .brand{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:#FAF6E4}
-.topnav .brand img{height:44px;width:auto;display:block}
-.topnav .brand .bt{font-size:.95rem;color:#F2C14E}
-.topnav a{color:#CFC7B2;text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
-.topnav a:hover{color:#FAF6E4}
-.topnav a[aria-current="page"]{color:#FAF6E4;border-bottom-color:#F2A900}
-.topnav .theme{margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid rgba(250,246,228,.3);background:transparent;color:#FAF6E4;padding:5px 12px;border-radius:20px;cursor:pointer}
+.topnav .in{max-width:1180px;margin:0 auto;padding:12px 20px 14px}
+.topnav .toprow{display:flex;align-items:center;gap:14px}
+.topnav .brand{display:inline-flex;align-items:center;gap:14px;color:#FAF6E4}
+.topnav .brand img{height:52px;width:auto;display:block}
+.topnav .brand .bt{font-size:clamp(1.45rem,3.4vw,2.1rem);font-weight:700;color:#F2C14E;letter-spacing:-.01em;line-height:1.1}
+.topnav .tabs{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.topnav .tabs a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:1rem;font-weight:500;color:#FAF6E4;
+  padding:9px 18px;border-radius:10px;border:1px solid rgba(250,246,228,.35);background:rgba(255,255,255,.06);transition:background .15s,border-color .15s}
+.topnav .tabs a:hover{border-color:#F2A900;background:rgba(242,169,0,.12)}
+.topnav .tabs a[aria-current="page"]{background:#F2A900;border-color:#F2A900;color:#23262C;font-weight:700}
+.topnav .tabs a .ic{font-size:1.05rem}
+.topnav .theme{white-space:nowrap;margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid rgba(250,246,228,.3);background:transparent;color:#FAF6E4;padding:5px 12px;border-radius:20px;cursor:pointer}
 .topnav .theme:hover{border-color:#F2A900}
+@media (max-width:520px){ .topnav .theme .tl{display:none} .topnav .theme{padding:6px 10px;font-size:1rem} .topnav .brand img{height:42px} .topnav .tabs a{flex:1;justify-content:center;padding:9px 10px;font-size:.95rem} }
 .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px}
 h1{font-size:clamp(1.6rem,3vw,2.2rem);margin:0 0 4px;letter-spacing:-.01em}
 .lede{margin:0 0 20px;color:var(--muted);max-width:65ch}
@@ -105,10 +110,14 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
 <body>
 <nav class="topnav" aria-label="ניווט ראשי">
   <div class="in">
-    <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">תשואות ומינוף</span></span>
-    <a href="index.html" aria-current="page">השוואת תשואות</a>
-    <a href="leverage.html">סימולטור מינוף</a>
-    <button type="button" class="theme" id="themeBtn"></button>
+    <div class="toprow">
+      <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">תשואות ומינוף</span></span>
+      <button type="button" class="theme" id="themeBtn"></button>
+    </div>
+    <div class="tabs">
+      <a href="index.html" aria-current="page"><span class="ic" aria-hidden="true">📊</span>השוואת תשואות</a>
+      <a href="leverage.html" ><span class="ic" aria-hidden="true">📈</span>סימולטור מינוף</a>
+    </div>
   </div>
 </nav>
 
@@ -434,7 +443,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()
 
 // ---------- light / dark toggle ----------
 function paintThemeBtn(){ const dark=document.documentElement.getAttribute('data-theme')==='dark';
-  const b=document.getElementById('themeBtn'); b.textContent=dark?'☀️ מצב בהיר':'🌙 מצב כהה'; b.setAttribute('aria-label',dark?'מעבר למצב בהיר':'מעבר למצב כהה'); }
+  const b=document.getElementById('themeBtn'); b.innerHTML=dark?'☀️<span class="tl"> מצב בהיר</span>':'🌙<span class="tl"> מצב כהה</span>'; b.setAttribute('aria-label',dark?'מעבר למצב בהיר':'מעבר למצב כהה'); }
 document.getElementById('themeBtn').addEventListener('click',()=>{
   const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
   document.documentElement.setAttribute('data-theme',next);

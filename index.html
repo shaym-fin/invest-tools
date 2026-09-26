@@ -11,31 +11,34 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F3F5F4; --panel:#FFFFFF; --ink:#18263A; --muted:#5D6B7C; --line:#DCE2E6;
-  --accent:#2F5DA8; --soft:#EAF0F7; --pos:#0F7C6E; --neg:#B4472F;
+  --bg:#F7F5EF; --panel:#FFFFFF; --ink:#23262C; --muted:#6B6456; --line:#E6DFCF; --soft:#FBF2D8; --accent:#B7791F; --gold:#F2A900; --pos:#1E8A5A; --neg:#B4472F;
+  
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#10161F; --panel:#172130; --ink:#E6ECF2; --muted:#9AA8B8; --line:#2A3748;
-    --accent:#7EA6E8; --soft:#1E2B3D; --pos:#3DBBA8; --neg:#E97B62;
+    --bg:#15171B; --panel:#1F2227; --ink:#F3EFE2; --muted:#A9A393; --line:#353840; --soft:#2B2A22; --accent:#F5B82E; --gold:#F5B82E; --pos:#4CC38A; --neg:#E97B62;
+    
   }
 }
 :root[data-theme="dark"]{
-  --bg:#10161F; --panel:#172130; --ink:#E6ECF2; --muted:#9AA8B8; --line:#2A3748;
-  --accent:#7EA6E8; --soft:#1E2B3D; --pos:#3DBBA8; --neg:#E97B62;
+  --bg:#15171B; --panel:#1F2227; --ink:#F3EFE2; --muted:#A9A393; --line:#353840; --soft:#2B2A22; --accent:#F5B82E; --gold:#F5B82E; --pos:#4CC38A; --neg:#E97B62;
+  
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Hebrew","Arial Hebrew",Arial,sans-serif;font-size:16px;line-height:1.5}
-.topnav{background:var(--panel);border-bottom:1px solid var(--line)}
-.topnav .in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
-.topnav .brand{font-weight:700}
-.topnav a{color:var(--muted);text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
-.topnav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
-.topnav .theme{margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:5px 12px;border-radius:20px;cursor:pointer}
-.topnav .theme:hover{border-color:var(--muted)}
+.topnav{background:#23262C;border-bottom:3px solid #F2A900}
+.topnav .in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.topnav .brand{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:#FAF6E4}
+.topnav .brand img{height:44px;width:auto;display:block}
+.topnav .brand .bt{font-size:.95rem;color:#F2C14E}
+.topnav a{color:#CFC7B2;text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+.topnav a:hover{color:#FAF6E4}
+.topnav a[aria-current="page"]{color:#FAF6E4;border-bottom-color:#F2A900}
+.topnav .theme{margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid rgba(250,246,228,.3);background:transparent;color:#FAF6E4;padding:5px 12px;border-radius:20px;cursor:pointer}
+.topnav .theme:hover{border-color:#F2A900}
 .wrap{max-width:1180px;margin:0 auto;padding:26px 20px 60px}
 h1{font-size:clamp(1.6rem,3vw,2.2rem);margin:0 0 4px;letter-spacing:-.01em}
 .lede{margin:0 0 20px;color:var(--muted);max-width:65ch}
@@ -90,7 +93,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
 <body>
 <nav class="topnav" aria-label="ניווט ראשי">
   <div class="in">
-    <span class="brand">תשואות ומינוף</span>
+    <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">תשואות ומינוף</span></span>
     <a href="index.html" aria-current="page">השוואת תשואות</a>
     <a href="leverage.html">סימולטור מינוף</a>
     <button type="button" class="theme" id="themeBtn"></button>
@@ -156,9 +159,11 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:po
   <p class="foot">תשואות עבר אינן מבטיחות תשואות בעתיד. התשואות ברוטו, לפני דמי ניהול, כפי שדווחו לרשות שוק ההון. תשואה ממוצעת שנתית מוצגת רק לתקופה של 12 חודשים לפחות. בפוליסות החיסכון מוצגים מסלולי ההשקעה מביטוח־נט, שחלקם משותפים גם לביטוחי מנהלים. המידע אינו ייעוץ השקעות.</p>
 </div>
 
+<footer class="site-foot">© כל הזכויות שמורות לשי הדרים סוכנות לביטוח פנסיוני (2024) בע"מ</footer>
+
 <script>
 const $=id=>document.getElementById(id);
-const COLORS=['#2F5DA8','#C4452D','#0F7C6E','#C58A12','#7A4DB0','#1F8FBF','#B23A77','#5E7C1E'];
+const COLORS=['#E09B00','#4F86B8','#D0573B','#2E9C86','#8E62C4','#C2185B','#6B8E23','#8C6D1F'];
 const MAX_SEL=8;
 const PRODUCT_NAMES={pension:'קרנות פנסיה',gemel:'קופות גמל',hishtalmut:'קרנות השתלמות',policy:'פוליסות חיסכון'};
 const state={p:null,from:null,to:null,sel:[],q:'',company:'',spec:'',full:true,sort:{k:'cum',d:-1},show:50};

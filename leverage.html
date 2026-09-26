@@ -11,23 +11,20 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F3F5F4; --panel:#FFFFFF; --ink:#18263A; --muted:#5D6B7C; --line:#DCE2E6;
-  --equity:#0F7C6E; --debt:#C27A12; --accent:#2F5DA8; --soft:#EAF0F7;
-  --c-grace:#2F5DA8; --c-balloon:#B4472F; --c-spitzer:#0F7C6E;
+  --bg:#F7F5EF; --panel:#FFFFFF; --ink:#23262C; --muted:#6B6456; --line:#E6DFCF; --soft:#FBF2D8; --accent:#B7791F; --gold:#F2A900; --pos:#1E8A5A; --neg:#B4472F;
+  --equity:#2F4858; --debt:#E0A100; --c-grace:#2F4858; --c-balloon:#B4472F; --c-spitzer:#D98E04;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#10161F; --panel:#172130; --ink:#E6ECF2; --muted:#9AA8B8; --line:#2A3748;
-    --equity:#3DBBA8; --debt:#E3A03F; --accent:#7EA6E8; --soft:#1E2B3D;
-    --c-grace:#7EA6E8; --c-balloon:#E97B62; --c-spitzer:#3DBBA8;
+    --bg:#15171B; --panel:#1F2227; --ink:#F3EFE2; --muted:#A9A393; --line:#353840; --soft:#2B2A22; --accent:#F5B82E; --gold:#F5B82E; --pos:#4CC38A; --neg:#E97B62;
+    --equity:#8FB3CC; --debt:#F5B82E; --c-grace:#8FB3CC; --c-balloon:#E97B62; --c-spitzer:#F5B82E;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#10161F; --panel:#172130; --ink:#E6ECF2; --muted:#9AA8B8; --line:#2A3748;
-  --equity:#3DBBA8; --debt:#E3A03F; --accent:#7EA6E8; --soft:#1E2B3D;
-  --c-grace:#7EA6E8; --c-balloon:#E97B62; --c-spitzer:#3DBBA8;
+  --bg:#15171B; --panel:#1F2227; --ink:#F3EFE2; --muted:#A9A393; --line:#353840; --soft:#2B2A22; --accent:#F5B82E; --gold:#F5B82E; --pos:#4CC38A; --neg:#E97B62;
+  --equity:#8FB3CC; --debt:#F5B82E; --c-grace:#8FB3CC; --c-balloon:#E97B62; --c-spitzer:#F5B82E;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -47,16 +44,16 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:16p
 #report{display:none}
 @media print{
   @page{size:A4;margin:12mm}
-  body{background:#fff !important;color:#18263A !important}
+  body{background:#fff !important;color:#23262C !important}
   body > *:not(#report){display:none !important}
-  #report{display:block !important;font-size:11pt;color:#18263A}
+  #report{display:block !important;font-size:11pt;color:#23262C}
   #report h1{font-size:18pt;margin:0 0 2px}
-  #report h2{font-size:12.5pt;margin:16px 0 6px;padding-bottom:3px;border-bottom:1.5px solid #18263A;break-after:avoid}
+  #report h2{font-size:12.5pt;margin:16px 0 6px;padding-bottom:3px;border-bottom:1.5px solid #23262C;break-after:avoid}
   #report .sub{color:#5D6B7C;font-size:9.5pt;margin-bottom:8px}
   #report table{width:100%;border-collapse:collapse;min-width:0;font-size:9.5pt;break-inside:auto}
   #report th,#report td{border-bottom:1px solid #DCE2E6;padding:4px 6px;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
   #report th:first-child,#report td:first-child{text-align:right;white-space:normal}
-  #report th{background:#EAF0F7;color:#18263A;font-weight:700}
+  #report th{background:#FBF2D8;color:#23262C;font-weight:700}
   #report tr{break-inside:avoid}
   #report tbody tr:last-child td{font-weight:400}
   #report tr.b td{font-weight:700 !important}
@@ -67,8 +64,12 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:16p
   #report .kv span:last-child{font-weight:600;font-variant-numeric:tabular-nums}
   #report .chart{break-inside:avoid;margin-top:6px}
   #report .chart svg{width:100%;height:auto}
+  #report .rhead{display:flex;align-items:center;gap:14px;margin-bottom:4px}
+  #report .rhead img{height:56px;width:auto}
   #report .note{font-size:8.5pt;color:#5D6B7C;margin-top:14px}
-  #report .pos{color:#0F7C6E} #report .neg{color:#B4472F}
+  #report .pos{color:#1E8A5A} #report .neg{color:#B4472F}
+  #report th{background:#FBF2D8 !important}
+  #report h2{border-bottom-color:#E0A100 !important}
 }
 .grid{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start}
 @media (max-width:900px){.grid{grid-template-columns:1fr}}
@@ -111,7 +112,8 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .structure .sub{color:var(--muted);font-size:.9rem}
 .bar{display:flex;height:54px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
 .bar div{display:flex;align-items:center;padding:0 12px;color:#fff;font-weight:500;font-size:.9rem;white-space:nowrap;overflow:hidden;transition:width .35s ease}
-.bar .eq{background:var(--equity)} .bar .dt{background:var(--debt)}
+:root[data-theme="dark"] .bar .eq{color:#15171B}
+.bar .eq{background:var(--equity);color:#fff} .bar .dt{background:var(--debt);color:#23262C}
 .legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-size:.88rem;color:var(--muted)}
 .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:6px;vertical-align:middle}
 .legend .l-eq::before{background:var(--equity)} .legend .l-dt::before{background:var(--debt)}
@@ -134,7 +136,7 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .type dt{color:var(--muted)} .type dd{margin:0;font-weight:500;font-variant-numeric:tabular-nums}
 .type .hl{font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;margin-bottom:10px}
 .type .hl small{display:block;font-size:.75rem;font-weight:400;color:var(--muted)}
-.pos{color:var(--equity)} .neg{color:var(--c-balloon)}
+.pos{color:var(--pos)} .neg{color:var(--neg)}
 
 .chart-box{position:relative}
 .chart-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
@@ -172,19 +174,22 @@ tbody tr:last-child td{font-weight:700}
 #yTable th.sel,#yTable td.sel{background:var(--soft)}
 #yTable td .sm{display:block;font-size:.75rem;color:var(--muted);font-weight:400}
 .note{font-size:.8rem;color:var(--muted);margin-top:10px;max-width:75ch}
-.topnav{background:var(--panel);border-bottom:1px solid var(--line)}
-.topnav .in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
-.topnav .brand{font-weight:700}
-.topnav a{color:var(--muted);text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
-.topnav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
-.topnav .theme{margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:5px 12px;border-radius:20px;cursor:pointer}
-.topnav .theme:hover{border-color:var(--muted)}
+.topnav{background:#23262C;border-bottom:3px solid #F2A900}
+.topnav .in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.topnav .brand{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:#FAF6E4}
+.topnav .brand img{height:44px;width:auto;display:block}
+.topnav .brand .bt{font-size:.95rem;color:#F2C14E}
+.topnav a{color:#CFC7B2;text-decoration:none;font-size:.95rem;padding:4px 0;border-bottom:2px solid transparent}
+.topnav a:hover{color:#FAF6E4}
+.topnav a[aria-current="page"]{color:#FAF6E4;border-bottom-color:#F2A900}
+.topnav .theme{margin-inline-start:auto;font:inherit;font-size:.85rem;border:1px solid rgba(250,246,228,.3);background:transparent;color:#FAF6E4;padding:5px 12px;border-radius:20px;cursor:pointer}
+.topnav .theme:hover{border-color:#F2A900}
 </style>
 </head>
 <body>
 <nav class="topnav" aria-label="ניווט ראשי">
   <div class="in">
-    <span class="brand">תשואות ומינוף</span>
+    <span class="brand"><img src="logo-nav.png" alt="הדרים סוכנות לביטוח" onerror="this.remove()"><span class="bt">תשואות ומינוף</span></span>
     <a href="index.html">השוואת תשואות</a>
     <a href="leverage.html" aria-current="page">סימולטור מינוף</a>
     <button type="button" class="theme" id="themeBtn"></button>
@@ -371,6 +376,8 @@ tbody tr:last-child td{font-weight:700}
     </main>
   </div>
 </div>
+
+<footer class="site-foot">© כל הזכויות שמורות לשי הדרים סוכנות לביטוח פנסיוני (2024) בע"מ</footer>
 
 <div id="report" dir="rtl"></div>
 
@@ -792,15 +799,16 @@ function buildReportHTML(){
   const chart=$('chart').outerHTML.replace('id="chart"','').replace(/<g id="hover"[\s\S]*?<\/g>/,'');
   if(prevTheme==null) root.removeAttribute('data-theme'); else root.setAttribute('data-theme',prevTheme);
   calc();
-  return `<h1>דוח סימולציית מינוף</h1>
-    <div class="sub">הופק ב־${today()}</div>
+  return `<div class="rhead"><img src="logo-mark.png" alt="" onerror="this.remove()"><div><h1>דוח סימולציית מינוף</h1>
+    <div class="sub">הופק ב־${today()} · שי הדרים סוכנות לביטוח פנסיוני</div></div></div>
     <h2>נתוני הסימולציה</h2>${kv(m.inputs)}
     <h2>מבנה ההון</h2>${kv(m.structure)}
     <h2>השוואת מסלולי החזר</h2>${cmp(m.compare)}
     <h2>התשואה בתקופת ההלוואה</h2>${cmp(m.yieldRows)}
-    <h2>${chartMode==='balance'?'יתרת ההלוואה לאורך התקופה':'סך התשלומים המצטבר'}</h2><div class="chart">${chart}<div class="lg"><span style="--c:#2F5DA8">גרייס</span><span style="--c:#B4472F">בלון</span><span style="--c:#0F7C6E">שפיצר</span></div></div>
+    <h2>${chartMode==='balance'?'יתרת ההלוואה לאורך התקופה':'סך התשלומים המצטבר'}</h2><div class="chart">${chart}<div class="lg"><span style="--c:#2F4858">גרייס</span><span style="--c:#B4472F">בלון</span><span style="--c:#D98E04">שפיצר</span></div></div>
     <h2>לוח סילוקין שנתי · מסלול ${TYPES[selected].name}</h2>${sched}
-    <p class="note">הריבית מחושבת כריבית שנתית חלקי 12 וקבועה לאורך התקופה. הסכומים אחרי דמי ניהול ולפני מס. תשואות עבר אינן מבטיחות תשואות בעתיד. הדוח לצורך המחשה בלבד ואינו ייעוץ השקעות או אשראי.</p>`;
+    <p class="note">הריבית מחושבת כריבית שנתית חלקי 12 וקבועה לאורך התקופה. הסכומים אחרי דמי ניהול ולפני מס. תשואות עבר אינן מבטיחות תשואות בעתיד. הדוח לצורך המחשה בלבד ואינו ייעוץ השקעות או אשראי.</p>
+    <p class="note" style="text-align:center">© כל הזכויות שמורות לשי הדרים סוכנות לביטוח פנסיוני (2024) בע&quot;מ</p>`;
 }
 function exportPdf(){
   if(!LAST) return;
@@ -808,7 +816,8 @@ function exportPdf(){
   const old=document.title; document.title=`דוח מינוף ${today().replace(/\./g,'-')}`;
   const done=()=>{ document.title=old; $('report').innerHTML=''; window.removeEventListener('afterprint',done); };
   window.addEventListener('afterprint',done);
-  window.print();
+  const imgs=[...$('report').querySelectorAll('img')].filter(i=>!i.complete);
+  Promise.all(imgs.map(i=>new Promise(r=>{ i.onload=i.onerror=r; setTimeout(r,2000); }))).then(()=>window.print());
 }
 
 // ----- Excel -----
@@ -832,14 +841,14 @@ async function exportXlsx(){
   try{ await loadXLSX(); }
   catch(e){ alert('לא הצלחתי לטעון את רכיב האקסל. בדקו את החיבור לאינטרנט ונסו שוב.'); btn.disabled=false; btn.textContent='Excel'; return; }
   const m=reportModel(), L=LAST, cell=(v,t)=>t==='t'?v:{v:(v==null||!isFinite(v))?'—':v,z:ZF[t]};
-  const sum=[['דוח סימולציית מינוף'],[`הופק ב־${today()}`],[],['נתוני הסימולציה']];
+  const sum=[['דוח סימולציית מינוף'],['שי הדרים סוכנות לביטוח פנסיוני'],[`הופק ב־${today()}`],[],['נתוני הסימולציה']];
   m.inputs.forEach(([k,v,t])=>sum.push([k,cell(v,t)]));
   sum.push([],['מבנה ההון']); m.structure.forEach(([k,v,t])=>sum.push([k,cell(v,t)]));
   sum.push([],['השוואת מסלולי החזר',...KEYS.map(k=>TYPES[k].name)]);
   m.compare.forEach(([k,vals,t])=>sum.push([k,...vals.map(v=>cell(v,t))]));
   sum.push([],['התשואה בתקופת ההלוואה',...KEYS.map(k=>TYPES[k].name)]);
   m.yieldRows.forEach(([k,vals,t])=>sum.push([k,...vals.map(v=>cell(v,t))]));
-  sum.push([],['הסכומים אחרי דמי ניהול ולפני מס. לצורך המחשה בלבד ואינו ייעוץ.']);
+  sum.push([],['הסכומים אחרי דמי ניהול ולפני מס. לצורך המחשה בלבד ואינו ייעוץ.'],['© כל הזכויות שמורות לשי הדרים סוכנות לביטוח פנסיוני (2024) בע"מ']);
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,sheetFrom(sum,[36,18,18,18]),'סיכום');
   for(const k of ['spitzer','grace','balloon']){

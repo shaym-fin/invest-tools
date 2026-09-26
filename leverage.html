@@ -35,6 +35,40 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
 header h1{font-size:clamp(1.7rem,3.2vw,2.4rem);font-weight:700;margin:0 0 4px;letter-spacing:-.01em}
 header p{margin:0 0 24px;color:var(--muted);max-width:60ch}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.export{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.export span{font-size:.85rem;color:var(--muted)}
+.export button{font:inherit;font-size:.9rem;font-weight:500;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.export button:hover{border-color:var(--muted)}
+.export button:disabled{opacity:.6;cursor:wait}
+.export .xl::before{content:"";width:10px;height:10px;border-radius:2px;background:#1D6F42}
+.export .pdf::before{content:"";width:10px;height:10px;border-radius:2px;background:#B4472F}
+#report{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff !important;color:#18263A !important}
+  body > *:not(#report){display:none !important}
+  #report{display:block !important;font-size:11pt;color:#18263A}
+  #report h1{font-size:18pt;margin:0 0 2px}
+  #report h2{font-size:12.5pt;margin:16px 0 6px;padding-bottom:3px;border-bottom:1.5px solid #18263A;break-after:avoid}
+  #report .sub{color:#5D6B7C;font-size:9.5pt;margin-bottom:8px}
+  #report table{width:100%;border-collapse:collapse;min-width:0;font-size:9.5pt;break-inside:auto}
+  #report th,#report td{border-bottom:1px solid #DCE2E6;padding:4px 6px;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #report th:first-child,#report td:first-child{text-align:right;white-space:normal}
+  #report th{background:#EAF0F7;color:#18263A;font-weight:700}
+  #report tr{break-inside:avoid}
+  #report tbody tr:last-child td{font-weight:400}
+  #report tr.b td{font-weight:700 !important}
+  #report .lg{display:flex;gap:16px;font-size:9pt;color:#5D6B7C;justify-content:center}
+  #report .lg span::before{content:"";display:inline-block;width:14px;height:3px;margin-inline-end:5px;vertical-align:middle;background:var(--c)}
+  #report .kv{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+  #report .kv div{display:flex;justify-content:space-between;border-bottom:1px solid #DCE2E6;padding:3px 0}
+  #report .kv span:last-child{font-weight:600;font-variant-numeric:tabular-nums}
+  #report .chart{break-inside:avoid;margin-top:6px}
+  #report .chart svg{width:100%;height:auto}
+  #report .note{font-size:8.5pt;color:#5D6B7C;margin-top:14px}
+  #report .pos{color:#0F7C6E} #report .neg{color:#B4472F}
+}
 .grid{display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start}
 @media (max-width:900px){.grid{grid-template-columns:1fr}}
 .grid>*,.stack>*{min-width:0}
@@ -51,6 +85,20 @@ header p{margin:0 0 24px;color:var(--muted);max-width:60ch}
 .inp .unit{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.9rem;pointer-events:none}
 input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 input[type=range]{width:100%;accent-color:var(--debt);margin-top:8px}
+.chk{display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;margin-top:8px}
+.chk input{width:17px;height:17px;accent-color:var(--accent);margin:0}
+.hist{background:var(--soft);border-radius:10px;padding:12px;margin-top:10px;display:grid;gap:10px}
+.hist[hidden]{display:none}
+.hist label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:3px}
+.hist select,.hist input[type=search]{width:100%;font:inherit;font-size:.9rem;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+.hist .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hist .quick{display:flex;gap:5px;flex-wrap:wrap}
+.hist .quick button{font:inherit;font-size:.78rem;border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:4px 9px;border-radius:20px;cursor:pointer}
+.hist .quick button:hover{color:var(--ink)}
+.hist .res{font-size:.88rem;font-variant-numeric:tabular-nums}
+.hist .res b{font-size:1.05rem}
+.hist .warn{color:var(--c-balloon);font-size:.82rem}
+input[readonly]{opacity:.75;cursor:not-allowed}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .rate-sum{background:var(--soft);border-radius:9px;padding:10px 12px;font-size:.9rem;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .rate-sum b{font-variant-numeric:tabular-nums}
@@ -140,8 +188,15 @@ tbody tr:last-child td{font-weight:700}
 </nav>
 <div class="wrap">
   <header>
-    <h1>סימולטור מינוף</h1>
-    <p>הזינו את הסכום הצבור, בחרו כמה למנף ואת תנאי ההלוואה, והשוו בין גרייס, בלון ושפיצר.</p>
+    <div>
+      <h1>סימולטור מינוף</h1>
+      <p>הזינו את הסכום הצבור, בחרו כמה למנף ואת תנאי ההלוואה, והשוו בין גרייס, בלון ושפיצר.</p>
+    </div>
+    <div class="export" aria-label="הורדת דוח">
+      <span>הורדת דוח:</span>
+      <button type="button" class="xl" id="btnXlsx">Excel</button>
+      <button type="button" class="pdf" id="btnPdf">PDF</button>
+    </div>
   </header>
 
   <div class="grid">
@@ -200,6 +255,30 @@ tbody tr:last-child td{font-weight:700}
       <div class="field">
         <label for="ret">תשואה שנתית צפויה על ההשקעה</label>
         <div class="inp"><input id="ret" inputmode="decimal" value="8"><span class="unit">%</span></div>
+        <label class="chk"><input type="checkbox" id="useHist"> לפי תשואת עבר של מסלול</label>
+        <div class="hist" id="histBox" hidden>
+          <div>
+            <label for="hProd">מוצר</label>
+            <select id="hProd"></select>
+          </div>
+          <div>
+            <label for="hSearch">מסלול</label>
+            <input type="search" id="hSearch" placeholder="חיפוש לפי שם, חברה או מספר">
+            <select id="hFund" style="margin-top:6px" size="5" aria-label="בחירת מסלול"></select>
+          </div>
+          <div class="row2">
+            <div><label for="hFrom">מחודש</label><select id="hFrom"></select></div>
+            <div><label for="hTo">עד חודש</label><select id="hTo"></select></div>
+          </div>
+          <div class="quick" id="hQuick">
+            <button type="button" data-q="12">שנה</button>
+            <button type="button" data-q="36">3 שנים</button>
+            <button type="button" data-q="60">5 שנים</button>
+            <button type="button" data-q="120">10 שנים</button>
+            <button type="button" data-q="all">כל התקופה</button>
+          </div>
+          <div class="res" id="hRes" aria-live="polite"></div>
+        </div>
       </div>
       <div class="field">
         <label for="fee">דמי ניהול שנתיים</label>
@@ -289,6 +368,8 @@ tbody tr:last-child td{font-weight:700}
   </div>
 </div>
 
+<div id="report" dir="rtl"></div>
+
 <script>
 const $ = id => document.getElementById(id);
 const fmt = (v, d=0) => isFinite(v) ? v.toLocaleString('he-IL',{minimumFractionDigits:d,maximumFractionDigits:d}) : '—';
@@ -297,6 +378,7 @@ const num = el => { const n = parseFloat(String(el.value).replace(/[^\d.\-]/g,''
 const withCommas = el => { const n = num(el); el.value = n ? fmt(n) : (el.value.trim()==='' ? '' : '0'); };
 
 let selected = 'spitzer';
+let LAST = null;
 const TYPES = {
   grace:   {name:'גרייס', desc:'ריבית בלבד כל חודש, הקרן כולה בסוף', color:'var(--c-grace)'},
   balloon: {name:'בלון', desc:'אין תשלומים חודשיים, קרן + ריבית בסוף', color:'var(--c-balloon)'},
@@ -346,6 +428,8 @@ function calc(){
   const finalValue = T*(1+g);
   const yRows = {};
   const results = {};
+  LAST = {E,P,D,years,n,annual,prime:num($('prime')),spread:num($('spread')),pct:num($('pct')),ret,fee,netRet,T,g,
+          eqProfit,levProfit,feePaid,depTotal,depProfit,ownCap,types:{},results};
   const box = $('types'); box.innerHTML='';
   for(const key of ['grace','balloon','spitzer']){
     const {rows, pmt} = n>0 ? schedule(key,P,r,n) : {rows:[],pmt:0};
@@ -355,6 +439,7 @@ function calc(){
     const monthly = key==='grace' ? P*r : key==='spitzer' ? pmt : 0;
     const net = eqProfit + levProfit - totalInt;
     results[key] = rows; yRows[key] = {totalInt, levNet: levProfit-totalInt, total: eqProfit+levProfit-totalInt};
+    LAST.types[key] = {monthly,last,totalPaid,totalInt,levNet:levProfit-totalInt,total:eqProfit+levProfit-totalInt};
     const t = TYPES[key];
     const btn = document.createElement('button');
     btn.className='type'; btn.type='button'; btn.style.setProperty('--c',t.color);
@@ -525,6 +610,235 @@ $('equity').addEventListener('input',fromPct);
 ['equity','loan','dep'].forEach(id=>$(id).addEventListener('blur',e=>withCommas(e.target)));
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',calc);
 calc();
+
+// ---------- historical return from the returns comparison data ----------
+const H = {idx:null, data:{}, prod:null, fund:null, from:null, to:null};
+const HP_NAMES = {pension:'קרנות פנסיה',gemel:'קופות גמל',hishtalmut:'קרנות השתלמות',policy:'פוליסות חיסכון'};
+const hlab = p => `${String(p%100).padStart(2,'0')}/${Math.floor(p/100)}`;
+const hesc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function hSave(){ try{ localStorage.setItem('lev-hist', JSON.stringify({on:$('useHist').checked,prod:H.prod,fund:H.fund,from:H.from,to:H.to})); }catch(e){} }
+function hLoadSaved(){ try{ return JSON.parse(localStorage.getItem('lev-hist')||'null'); }catch(e){ return null; } }
+async function hJSON(u){ const r=await fetch(u,{cache:'no-cache'}); if(!r.ok) throw new Error(r.status); return r.json(); }
+async function hProduct(p){
+  if(!H.data[p]){ const d=await hJSON(`data/${p}.json`); d.byId={}; d.funds.forEach(f=>d.byId[f.id]=f); d.pos={}; d.periods.forEach((x,i)=>d.pos[x]=i); H.data[p]=d; }
+  return H.data[p];
+}
+function hRange(d,id){ const s=d.series[id]; if(!s) return []; const st=d.pos[s.s]; return d.periods.slice(st, st+s.r.length); }
+function hMsg(html){ $('hRes').innerHTML=html; }
+function hFillFunds(){
+  const d=H.data[H.prod], q=$('hSearch').value.trim().toLowerCase();
+  const list=d.funds.filter(f=>!q||(f.name+' '+f.company+' '+f.id).toLowerCase().includes(q))
+    .sort((a,b)=>(b.assets||0)-(a.assets||0)).slice(0,200);
+  $('hFund').innerHTML=list.map(f=>`<option value="${hesc(f.id)}">${hesc(f.name)} · ${hesc(f.id)}</option>`).join('');
+  if(H.fund && list.some(f=>f.id===H.fund)) $('hFund').value=H.fund;
+}
+function hFillPeriods(){
+  const d=H.data[H.prod], ps=hRange(d,H.fund);
+  const opts=ps.map(p=>`<option value="${p}">${hlab(p)}</option>`).join('');
+  $('hFrom').innerHTML=opts; $('hTo').innerHTML=opts;
+  if(!ps.length) return;
+  if(!ps.includes(H.to)) H.to=ps[ps.length-1];
+  if(!ps.includes(H.from)) H.from=ps[Math.max(0,ps.indexOf(H.to)-59)];
+  if(H.from>H.to) [H.from,H.to]=[H.to,H.from];
+  $('hFrom').value=H.from; $('hTo').value=H.to;
+}
+function hApply(){
+  if(!$('useHist').checked) return;
+  const d=H.data[H.prod]; if(!d||!H.fund){ hMsg('בחרו מסלול מהרשימה.'); return; }
+  const s=d.series[H.fund], st=d.pos[s.s], fi=d.pos[H.from]-st, ti=d.pos[H.to]-st;
+  const m=s.r.slice(fi,ti+1), got=m.filter(v=>v!=null), n=m.length;
+  const f=d.byId[H.fund];
+  if(n<12){ hMsg(`<span class="warn">כדי לחשב תשואה שנתית ממוצעת צריך תקופה של 12 חודשים לפחות (נבחרו ${n}).</span>`); hSave(); return; }
+  let g=1; got.forEach(v=>g*=1+v/100);
+  const ann=Math.pow(g,12/got.length)-1;
+  $('ret').value=(ann*100).toFixed(2);
+  hMsg(`תשואה שנתית ממוצעת: <b>${(ann*100).toFixed(2)}%</b><br>${hesc(f.name)}<br>${hlab(H.from)} עד ${hlab(H.to)} · ${n} חודשים · מצטבר ${((g-1)*100).toFixed(1)}%`
+    + (got.length<n?`<br><span class="warn">חסרים נתונים ל־${n-got.length} חודשים בתקופה.</span>`:'')
+    + `<br><span style="color:var(--muted);font-size:.78rem">תשואת ברוטו לפני דמי ניהול. דמי הניהול מנוכים בנפרד בשדה שמתחת.</span>`);
+  hSave(); calc();
+}
+async function hSetProd(p, keepFund){
+  H.prod=p; $('hProd').value=p; hMsg('טוען נתונים…');
+  try{ await hProduct(p); }catch(e){ hMsg('<span class="warn">לא הצלחתי לטעון את נתוני המסלולים.</span>'); return; }
+  if(!keepFund || !H.data[p].byId[H.fund]) H.fund=null;
+  hFillFunds();
+  if(!H.fund){ const first=$('hFund').options[0]; H.fund=first?first.value:null; if(first) $('hFund').value=H.fund; }
+  hFillPeriods(); hApply();
+}
+async function hToggle(){
+  const on=$('useHist').checked;
+  $('histBox').hidden=!on; $('ret').readOnly=on;
+  if(!on){ hSave(); return; }
+  if(!H.idx){
+    hMsg('טוען…');
+    try{ H.idx=await hJSON('data/index.json'); }
+    catch(e){ hMsg('<span class="warn">נתוני המסלולים זמינים רק באתר, אחרי שהעדכון האוטומטי רץ לפחות פעם אחת.</span>'); $('ret').readOnly=false; return; }
+    const prods=Object.keys(H.idx.products);
+    $('hProd').innerHTML=prods.map(p=>`<option value="${p}">${HP_NAMES[p]||p}</option>`).join('');
+    const sv=hLoadSaved();
+    if(sv && prods.includes(sv.prod)){ H.fund=sv.fund; H.from=sv.from; H.to=sv.to; await hSetProd(sv.prod,true); return; }
+    await hSetProd(prods[0],false); return;
+  }
+  hApply();
+}
+$('useHist').addEventListener('change',hToggle);
+$('hProd').addEventListener('change',e=>hSetProd(e.target.value,false));
+let hst; $('hSearch').addEventListener('input',()=>{ clearTimeout(hst); hst=setTimeout(hFillFunds,150); });
+$('hFund').addEventListener('change',e=>{ H.fund=e.target.value; hFillPeriods(); hApply(); });
+$('hFrom').addEventListener('change',e=>{ H.from=+e.target.value; if(H.from>H.to){H.to=H.from;$('hTo').value=H.to;} hApply(); });
+$('hTo').addEventListener('change',e=>{ H.to=+e.target.value; if(H.from>H.to){H.from=H.to;$('hFrom').value=H.from;} hApply(); });
+$('hQuick').addEventListener('click',e=>{ const b=e.target.closest('button[data-q]'); if(!b||!H.fund) return;
+  const ps=hRange(H.data[H.prod],H.fund); H.to=ps[ps.length-1];
+  H.from=b.dataset.q==='all'?ps[0]:ps[Math.max(0,ps.length-(+b.dataset.q))];
+  $('hFrom').value=H.from; $('hTo').value=H.to; hApply(); });
+
+// ---------- report export ----------
+function ownAnnual(tot){
+  const L=LAST; if(!L||L.n<=0||L.ownCap<=0) return null;
+  const fin=L.ownCap+tot; if(fin<=0) return null;
+  const f=m=>L.E*Math.pow(1+m,L.n)+(Math.abs(m)<1e-12?L.D*L.n:L.D*(Math.pow(1+m,L.n)-1)/m)-fin;
+  let lo=-0.99,hi=1; for(let i=0;i<200;i++){ const mid=(lo+hi)/2; if(f(mid)>0) hi=mid; else lo=mid; }
+  return Math.pow(1+(lo+hi)/2,12)-1;
+}
+function histInfo(){
+  try{
+    if(!$('useHist').checked||!H.prod||!H.fund||!H.data[H.prod]) return null;
+    const f=H.data[H.prod].byId[H.fund];
+    return `${f.name} (${f.id}), ${hlab(H.from)} עד ${hlab(H.to)}`;
+  }catch(e){ return null; }
+}
+const KEYS=['grace','balloon','spitzer'];
+const today=()=>new Date().toLocaleDateString('he-IL');
+function reportModel(){
+  const L=LAST, h=histInfo();
+  const inputs=[
+    ['סכום צבור (הון עצמי)',L.E,'c'],['הפקדה חודשית',L.D,'c'],['אחוז מינוף',L.pct/100,'p'],['סכום ההלוואה',L.P,'c'],
+    ['תקופת ההלוואה (שנים)',L.years,'n'],['ריבית פריים',L.prime/100,'p'],['פער מהפריים',L.spread/100,'p'],
+    ['ריבית שנתית',L.annual/100,'p'],['תשואה שנתית צפויה',L.ret,'p'],['דמי ניהול שנתיים',L.fee,'p'],
+  ];
+  if(h) inputs.push(['מקור התשואה',h,'t']);
+  const structure=[
+    ['סך הכל להשקעה',L.T,'c'],['שיעור ההלוואה מסך ההשקעה',L.T>0?L.P/L.T:0,'p'],
+    ['מכפיל הון',L.E>0?L.T/L.E:null,'x'],['תשואת איזון (ריבית + דמי ניהול)',L.annual/100+L.fee,'p'],
+  ];
+  const t=L.types;
+  const compare=[
+    ['תשלום חודשי',KEYS.map(k=>t[k].monthly),'c'],['תשלום אחרון',KEYS.map(k=>t[k].last),'c'],
+    ['סך ריבית',KEYS.map(k=>t[k].totalInt),'c'],['סך החזר',KEYS.map(k=>t[k].totalPaid),'c'],
+  ];
+  const yieldRows=[
+    ['תשואה על הקרן הממונפת',KEYS.map(()=>L.levProfit),'c'],
+    ['ריבית בתקופה',KEYS.map(k=>-t[k].totalInt),'c'],
+    ['רווח נטו מהמינוף',KEYS.map(k=>t[k].levNet),'c',true],
+  ];
+  if(L.D>0){ yieldRows.push(['תשואה על הסכום הצבור',KEYS.map(()=>L.eqProfit-L.depProfit),'c']); yieldRows.push(['תשואה על ההפקדות החודשיות',KEYS.map(()=>L.depProfit),'c']); }
+  yieldRows.push(
+    ['תשואה על ההון העצמי',KEYS.map(()=>L.eqProfit),'c'],
+    ['סה״כ רווח משוקלל',KEYS.map(k=>t[k].total),'c',true],
+    ['סה״כ רווח כאחוז מההון העצמי',KEYS.map(k=>L.ownCap>0?t[k].total/L.ownCap:null),'p'],
+    ['תשואה שנתית ממוצעת על ההון',KEYS.map(k=>ownAnnual(t[k].total)),'p'],
+    ['דמי ניהול בתקופה',KEYS.map(()=>L.feePaid),'c'],
+  );
+  return {inputs,structure,compare,yieldRows};
+}
+function yearly(key){
+  const rows=LAST.results[key], out=[];
+  for(let y=0;y*12<LAST.n;y++){
+    const sl=rows.slice(y*12,(y+1)*12);
+    out.push([y+1, sl.reduce((a,x)=>a+x.pay,0),
+      sl.reduce((a,x)=>a+(key==='balloon'?x.accrued:x.interest),0),
+      sl.reduce((a,x)=>a+x.principal,0), sl[sl.length-1].bal]);
+  }
+  return out;
+}
+
+// ----- PDF (print to PDF) -----
+function fv(v,kind){
+  if(v==null||!isFinite(v)) return kind==='t'?hesc(v):'—';
+  if(kind==='c') return (v<0?'−':'')+'₪'+fmt(Math.abs(Math.round(v)));
+  if(kind==='p') return fmt(v*100,2)+'%';
+  if(kind==='x') return '×'+fmt(v,2);
+  if(kind==='t') return hesc(v);
+  return fmt(v, v%1?1:0);
+}
+function buildReportHTML(){
+  const m=reportModel(), L=LAST;
+  const kv=list=>`<div class="kv">${list.map(([k,v,t])=>`<div><span>${k}</span><span>${fv(v,t)}</span></div>`).join('')}</div>`;
+  const cmp=(rows)=>`<table><thead><tr><th></th>${KEYS.map(k=>`<th>${TYPES[k].name}</th>`).join('')}</tr></thead><tbody>${
+    rows.map(([k,vals,t,b])=>`<tr class="${b?'b':''}"><td>${k}</td>${vals.map(v=>`<td class="${b?(v>=0?'pos':'neg'):''}">${fv(v,t)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const yr=yearly(selected);
+  const sched=L.n>0?`<table><thead><tr><th>שנה</th><th>תשלומים בשנה</th><th>ריבית</th><th>קרן</th><th>יתרה בסוף שנה</th></tr></thead><tbody>${
+    yr.map(r=>`<tr><td>${r[0]}</td>${r.slice(1).map(v=>`<td>${fv(v,'c')}</td>`).join('')}</tr>`).join('')}</tbody></table>`:'';
+  const root=document.documentElement, prevTheme=root.getAttribute('data-theme');
+  root.setAttribute('data-theme','light'); calc();            // draw the chart in print (light) colours
+  const chart=$('chart').outerHTML.replace('id="chart"','').replace(/<g id="hover"[\s\S]*?<\/g>/,'');
+  if(prevTheme==null) root.removeAttribute('data-theme'); else root.setAttribute('data-theme',prevTheme);
+  calc();
+  return `<h1>דוח סימולציית מינוף</h1>
+    <div class="sub">הופק ב־${today()}</div>
+    <h2>נתוני הסימולציה</h2>${kv(m.inputs)}
+    <h2>מבנה ההון</h2>${kv(m.structure)}
+    <h2>השוואת מסלולי החזר</h2>${cmp(m.compare)}
+    <h2>התשואה בתקופת ההלוואה</h2>${cmp(m.yieldRows)}
+    <h2>${chartMode==='balance'?'יתרת ההלוואה לאורך התקופה':'סך התשלומים המצטבר'}</h2><div class="chart">${chart}<div class="lg"><span style="--c:#2F5DA8">גרייס</span><span style="--c:#B4472F">בלון</span><span style="--c:#0F7C6E">שפיצר</span></div></div>
+    <h2>לוח סילוקין שנתי · מסלול ${TYPES[selected].name}</h2>${sched}
+    <p class="note">הריבית מחושבת כריבית שנתית חלקי 12 וקבועה לאורך התקופה. הסכומים אחרי דמי ניהול ולפני מס. תשואות עבר אינן מבטיחות תשואות בעתיד. הדוח לצורך המחשה בלבד ואינו ייעוץ השקעות או אשראי.</p>`;
+}
+function exportPdf(){
+  if(!LAST) return;
+  $('report').innerHTML=buildReportHTML();
+  const old=document.title; document.title=`דוח מינוף ${today().replace(/\./g,'-')}`;
+  const done=()=>{ document.title=old; $('report').innerHTML=''; window.removeEventListener('afterprint',done); };
+  window.addEventListener('afterprint',done);
+  window.print();
+}
+
+// ----- Excel -----
+function loadXLSX(){
+  if(window.XLSX) return Promise.resolve();
+  return new Promise((res,rej)=>{ const sc=document.createElement('script');
+    sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; sc.onload=res; sc.onerror=rej; document.head.appendChild(sc); });
+}
+const ZF={c:'"₪"#,##0;[Red]-"₪"#,##0',p:'0.00%',x:'"×"0.00',n:'0.##'};
+function sheetFrom(rows, widths){
+  // rows: arrays of cells; a cell is a value or {v, z}
+  const aoa=rows.map(r=>r.map(c=>c&&typeof c==='object'?c.v:c));
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  rows.forEach((r,i)=>r.forEach((c,j)=>{ if(c&&typeof c==='object'&&c.z){ const a=XLSX.utils.encode_cell({r:i,c:j}); if(ws[a]&&ws[a].t==='n') ws[a].z=c.z; } }));
+  if(widths) ws['!cols']=widths.map(w=>({wch:w}));
+  return ws;
+}
+async function exportXlsx(){
+  if(!LAST) return;
+  const btn=$('btnXlsx'); btn.disabled=true; btn.textContent='מכין…';
+  try{ await loadXLSX(); }
+  catch(e){ alert('לא הצלחתי לטעון את רכיב האקסל. בדקו את החיבור לאינטרנט ונסו שוב.'); btn.disabled=false; btn.textContent='Excel'; return; }
+  const m=reportModel(), L=LAST, cell=(v,t)=>t==='t'?v:{v:(v==null||!isFinite(v))?'—':v,z:ZF[t]};
+  const sum=[['דוח סימולציית מינוף'],[`הופק ב־${today()}`],[],['נתוני הסימולציה']];
+  m.inputs.forEach(([k,v,t])=>sum.push([k,cell(v,t)]));
+  sum.push([],['מבנה ההון']); m.structure.forEach(([k,v,t])=>sum.push([k,cell(v,t)]));
+  sum.push([],['השוואת מסלולי החזר',...KEYS.map(k=>TYPES[k].name)]);
+  m.compare.forEach(([k,vals,t])=>sum.push([k,...vals.map(v=>cell(v,t))]));
+  sum.push([],['התשואה בתקופת ההלוואה',...KEYS.map(k=>TYPES[k].name)]);
+  m.yieldRows.forEach(([k,vals,t])=>sum.push([k,...vals.map(v=>cell(v,t))]));
+  sum.push([],['הסכומים אחרי דמי ניהול ולפני מס. לצורך המחשה בלבד ואינו ייעוץ.']);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,sheetFrom(sum,[36,18,18,18]),'סיכום');
+  for(const k of ['spitzer','grace','balloon']){
+    const rows=[[`מסלול ${TYPES[k].name} · לוח סילוקין חודשי`],[],['חודש','תשלום','ריבית'+(k==='balloon'?' (נצברת)':''),'קרן','יתרה בסוף חודש']];
+    LAST.results[k].forEach((x,i)=>rows.push([i+1,cell(x.pay,'c'),cell(k==='balloon'?x.accrued:x.interest,'c'),cell(x.principal,'c'),cell(x.bal,'c')]));
+    rows.push([],['שנתי'],['שנה','תשלומים בשנה','ריבית','קרן','יתרה בסוף שנה']);
+    yearly(k).forEach(r=>rows.push([r[0],...r.slice(1).map(v=>cell(v,'c'))]));
+    XLSX.utils.book_append_sheet(wb,sheetFrom(rows,[10,16,16,16,18]),TYPES[k].name);
+  }
+  wb.Workbook={Views:[{RTL:true}]};
+  XLSX.writeFile(wb,`דוח-מינוף-${new Date().toISOString().slice(0,10)}.xlsx`);
+  btn.disabled=false; btn.textContent='Excel';
+}
+$('btnXlsx').addEventListener('click',exportXlsx);
+$('btnPdf').addEventListener('click',exportPdf);
+
+(()=>{ const sv=hLoadSaved(); if(sv&&sv.on){ $('useHist').checked=true; hToggle(); } })();
 </script>
 </body>
 </html>
